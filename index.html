@@ -321,6 +321,13 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                     </button>
+                    <!-- 進階設定按鈕 -->
+                    <button onclick="openAdvancedSettingsDialog()" class="bg-slate-700 hover:bg-slate-600 p-2 rounded-lg transition" title="進階設定">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </header>
@@ -731,7 +738,56 @@
                 </div>
             </div>
         </div>
-        
+
+        <!-- 進階設定 Dialog -->
+        <div id="advancedSettingsDialog" class="fixed inset-0 z-[100] hidden" onclick="handleAdvancedSettingsBackdropClick(event)">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+            <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+                <div class="relative bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl w-full max-w-md pointer-events-auto" onclick="event.stopPropagation()">
+                    <!-- Dialog 頭部 -->
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-800 rounded-t-2xl">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            進階設定
+                        </h3>
+                        <button onclick="closeAdvancedSettingsDialog()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition text-slate-400 hover:text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <!-- Dialog 內容 -->
+                    <div class="p-6 space-y-5">
+                        <!-- 隨機跳題設定 -->
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" id="randomJumpCheckbox" class="checkbox-custom" onchange="toggleRandomJump()">
+                                <div>
+                                    <span class="text-sm font-medium text-slate-300 group-hover:text-white transition">隨機跳題</span>
+                                    <p class="text-xs text-slate-500 mt-0.5">啟用後，下一題與自動跳題將隨機選擇題目</p>
+                                </div>
+                            </label>
+                            <div id="randomJumpInfo" class="hidden bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+                                <p class="text-xs text-slate-400 flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span>隨機跳題會排除已答對的題目，但答錯的題目仍可能被隨機選中，讓你有機會再次作答。</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Dialog 底部 -->
+                    <div class="px-6 py-4 border-t border-slate-700 bg-slate-800/50 rounded-b-2xl flex justify-end gap-3">
+                        <button onclick="closeAdvancedSettingsDialog()" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition">關閉</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 頁尾 -->
         <footer class="bg-slate-900/50 border-t border-slate-800 py-4">
             <p class="text-center text-slate-500 text-sm">
@@ -748,6 +804,7 @@
         let answerState = {};         // 答題狀態 { questionNum: 'correct' | 'wrong' }
         let selectedOptions = [];     // 多選題已選選項
         let hasAnswered = false;      // 當前題目是否已作答
+        let randomJumpEnabled = false; // 隨機跳題功能
 
         // GROQ AI 設定
         let groqApiKey = '';          // GROQ API Key
@@ -1193,10 +1250,15 @@
             showAnswerResult(question, isCorrect, letter);
             
             // 答對自動跳下一題
-            if (isCorrect && currentIndex < questions.length - 1) {
-                setTimeout(() => {
-                    nextQuestion();
-                }, 800);
+            if (isCorrect) {
+                // 隨機跳題模式：檢查是否還有可跳題目
+                // 一般模式：檢查是否還有下一題
+                const canJump = randomJumpEnabled ? getRandomNextIndex() !== -1 : currentIndex < questions.length - 1;
+                if (canJump) {
+                    setTimeout(() => {
+                        nextQuestion();
+                    }, 800);
+                }
             }
         }
 
@@ -1225,12 +1287,17 @@
             // 重新渲染選項以顯示結果
             renderOptions(q);
             showAnswerResult(q, isCorrect, userAnswer);
-            
+
             // 答對自動跳下一題
-            if (isCorrect && currentIndex < questions.length - 1) {
-                setTimeout(() => {
-                    nextQuestion();
-                }, 800);
+            if (isCorrect) {
+                // 隨機跳題模式：檢查是否還有可跳題目
+                // 一般模式：檢查是否還有下一題
+                const canJump = randomJumpEnabled ? getRandomNextIndex() !== -1 : currentIndex < questions.length - 1;
+                if (canJump) {
+                    setTimeout(() => {
+                        nextQuestion();
+                    }, 800);
+                }
             }
         }
 
@@ -1276,6 +1343,18 @@
         }
 
         function nextQuestion() {
+            // 如果啟用隨機跳題
+            if (randomJumpEnabled) {
+                const nextIdx = getRandomNextIndex();
+                if (nextIdx !== -1) {
+                    currentIndex = nextIdx;
+                    renderQuestion();
+                }
+                // 如果沒有可跳題目，不做任何動作
+                return;
+            }
+
+            // 一般順序跳題
             if (currentIndex < questions.length - 1) {
                 currentIndex++;
                 renderQuestion();
@@ -1745,6 +1824,89 @@
             }
         }
 
+        // ==================== 進階設定 Dialog ====================
+        /**
+         * 開啟進階設定 Dialog
+         */
+        function openAdvancedSettingsDialog() {
+            const dialog = document.getElementById('advancedSettingsDialog');
+            dialog.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // 載入已儲存的設定
+            const savedRandomJump = localStorage.getItem('random_jump_enabled');
+            randomJumpEnabled = savedRandomJump === 'true';
+            document.getElementById('randomJumpCheckbox').checked = randomJumpEnabled;
+
+            // 顯示/隱藏提示資訊
+            const infoDiv = document.getElementById('randomJumpInfo');
+            if (randomJumpEnabled) {
+                infoDiv.classList.remove('hidden');
+            } else {
+                infoDiv.classList.add('hidden');
+            }
+        }
+
+        /**
+         * 關閉進階設定 Dialog
+         */
+        function closeAdvancedSettingsDialog() {
+            const dialog = document.getElementById('advancedSettingsDialog');
+            dialog.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        /**
+         * 處理進階設定 Dialog 背景點擊
+         */
+        function handleAdvancedSettingsBackdropClick(event) {
+            if (event.target.id === 'advancedSettingsDialog') {
+                closeAdvancedSettingsDialog();
+            }
+        }
+
+        /**
+         * 切換隨機跳題功能
+         */
+        function toggleRandomJump() {
+            const checkbox = document.getElementById('randomJumpCheckbox');
+            randomJumpEnabled = checkbox.checked;
+            localStorage.setItem('random_jump_enabled', randomJumpEnabled.toString());
+
+            // 顯示/隱藏提示資訊
+            const infoDiv = document.getElementById('randomJumpInfo');
+            if (randomJumpEnabled) {
+                infoDiv.classList.remove('hidden');
+            } else {
+                infoDiv.classList.add('hidden');
+            }
+        }
+
+        /**
+         * 取得隨機跳題的下一題索引
+         * 排除已答對的題目，但允許答錯的題目
+         */
+        function getRandomNextIndex() {
+            // 收集可選擇的題目索引（排除已答對的）
+            const availableIndices = [];
+            for (let i = 0; i < questions.length; i++) {
+                const q = questions[i];
+                // 排除當前題目和已答對的題目
+                if (i !== currentIndex && answerState[q.number] !== 'correct') {
+                    availableIndices.push(i);
+                }
+            }
+
+            // 如果沒有可選題目，返回 -1
+            if (availableIndices.length === 0) {
+                return -1;
+            }
+
+            // 隨機選擇一個索引
+            const randomIdx = Math.floor(Math.random() * availableIndices.length);
+            return availableIndices[randomIdx];
+        }
+
         /**
          * 驗證 API Key 並載入模型
          */
@@ -2166,6 +2328,10 @@ ${optionsText}`;
             const savedModel = localStorage.getItem('groq_model');
             if (savedKey) groqApiKey = savedKey;
             if (savedModel) groqModel = savedModel;
+
+            // 載入已儲存的進階設定
+            const savedRandomJump = localStorage.getItem('random_jump_enabled');
+            randomJumpEnabled = savedRandomJump === 'true';
 
             // 初始化懸浮解析視窗拖曳功能
             initExplanationPanelDrag();
