@@ -606,46 +606,22 @@
                             </svg>
                             題目圖片
                         </h3>
-                        <!-- 縮放控制按鈕 -->
-                        <div class="flex items-center gap-2">
-                            <button onclick="zoomOut()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-700 hover:bg-slate-600 transition text-slate-300 hover:text-white" title="縮小">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
-                                </svg>
-                            </button>
-                            <span id="zoomLevel" class="text-sm text-slate-400 w-14 text-center">100%</span>
-                            <button onclick="zoomIn()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-700 hover:bg-slate-600 transition text-slate-300 hover:text-white" title="放大">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                </svg>
-                            </button>
-                            <button onclick="resetZoom()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-700 hover:bg-slate-600 transition text-slate-300 hover:text-white ml-1" title="重設">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                </svg>
-                            </button>
-                            <div class="w-px h-6 bg-slate-600 mx-2"></div>
-                            <button onclick="closeImageDialog()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-600/80 hover:bg-red-500 transition text-white" title="關閉">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
+                        <!-- 關閉按鈕 -->
+                        <button onclick="closeImageDialog()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-600/80 hover:bg-red-500 transition text-white" title="關閉">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
                     </div>
-                    <!-- 圖片容器（支援拖曳） -->
-                    <div id="imageContainer" class="min-h-[50vh] max-h-[70vh] overflow-auto bg-slate-950 cursor-grab active:cursor-grabbing relative" 
-                         onmousedown="startDrag(event)" onmousemove="onDrag(event)" onmouseup="endDrag()" onmouseleave="endDrag()"
-                         onwheel="handleWheel(event)">
-                        <div id="imageWrapper" class="w-full h-full flex items-center justify-center" style="min-height: 50vh;">
-                            <img id="dialogImageSrc" src="" alt="題目圖片" 
-                                 class="max-w-full max-h-[65vh] object-contain select-none pointer-events-none shadow-2xl rounded"
-                                 style="transform-origin: center center; will-change: transform;"
-                                 draggable="false">
+                    <!-- 圖片容器（支援多張圖片垂直排列） -->
+                    <div id="imageContainer" class="min-h-[50vh] max-h-[70vh] overflow-auto bg-slate-950 relative">
+                        <div id="imageWrapper" class="w-full flex flex-col items-center gap-4 p-4">
+                            <!-- 圖片將由 JavaScript 動態生成 -->
                         </div>
                     </div>
                     <!-- Dialog 底部提示 -->
                     <div class="px-4 py-2 border-t border-slate-700 bg-slate-800 text-center shrink-0">
-                        <p class="text-xs text-slate-500">滾輪縮放 | 拖曳移動 | <kbd class="px-1.5 py-0.5 bg-slate-700 rounded text-xs">ESC</kbd> 關閉</p>
+                        <p class="text-xs text-slate-500">滾動查看所有圖片 | <kbd class="px-1.5 py-0.5 bg-slate-700 rounded text-xs">ESC</kbd> 關閉</p>
                     </div>
                 </div>
             </div>
@@ -806,9 +782,9 @@
                 const chineseMatch = block.match(/\*\*中文：\*\*\s*([\s\S]*?)(?=(?:\!\[圖片\]|\*\*選項：\*\*))/);
                 const chineseText = chineseMatch ? chineseMatch[1].trim() : '';
                 
-                // 解析圖片
-                const imageMatch = block.match(/!\[圖片\]\((.*?)\)/);
-                const imagePath = imageMatch ? imageMatch[1] : null;
+                // 解析圖片（支援多張）
+                const imageMatches = [...block.matchAll(/!\[圖片\]\((.*?)\)/g)];
+                const imagePaths = imageMatches.map(m => m[1]);
                 
                 // 解析選項
                 const optionsMatch = block.match(/\*\*選項：\*\*\s*([\s\S]*?)(?=\*\*正確答案)/);
@@ -842,7 +818,7 @@
                     isMultiple,
                     englishText,
                     chineseText,
-                    imagePath,
+                    imagePaths,
                     options,
                     correctAnswer,
                     explanation
@@ -1050,11 +1026,22 @@
             
             // 顯示/隱藏查看圖片按鈕（附圖片題才顯示）
             const viewImageBtn = document.getElementById('viewImageBtn');
-            if (q.imagePath) {
+            if (q.imagePaths && q.imagePaths.length > 0) {
                 viewImageBtn.classList.remove('hidden');
                 viewImageBtn.classList.add('flex');
-                // 設定 Dialog 圖片路徑
-                document.getElementById('dialogImageSrc').src = q.imagePath;
+                // 更新按鈕文字顯示圖片數量
+                const btnText = viewImageBtn.querySelector('span');
+                btnText.textContent = q.imagePaths.length > 1 ? `查看圖片 (${q.imagePaths.length})` : '查看圖片';
+                // 生成 Dialog 圖片內容
+                const imageWrapper = document.getElementById('imageWrapper');
+                imageWrapper.innerHTML = q.imagePaths.map((path, index) => `
+                    <div class="w-full flex flex-col items-center">
+                        ${q.imagePaths.length > 1 ? `<p class="text-sm text-slate-400 mb-2">圖片 ${index + 1} / ${q.imagePaths.length}</p>` : ''}
+                        <img src="${path}" alt="題目圖片 ${index + 1}"
+                             class="max-w-full object-contain select-none shadow-2xl rounded border border-slate-700"
+                             draggable="false">
+                    </div>
+                `).join('');
             } else {
                 viewImageBtn.classList.add('hidden');
                 viewImageBtn.classList.remove('flex');
