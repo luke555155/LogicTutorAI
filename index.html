@@ -1746,12 +1746,32 @@
             }
         }
 
-        // ESC 鍵關閉 Dialog 和懸浮視窗
+        // 鍵盤快捷鍵
         document.addEventListener('keydown', (e) => {
+            // ESC 鍵關閉 Dialog 和懸浮視窗
             if (e.key === 'Escape') {
                 closeImageDialog();
                 closeSettingsDialog();
                 closeExplanationPanel();
+            }
+
+            // 方向鍵切換題目（排除在輸入框中的情況）
+            const activeElement = document.activeElement;
+            const isInputFocused = activeElement.tagName === 'INPUT' ||
+                                   activeElement.tagName === 'TEXTAREA' ||
+                                   activeElement.isContentEditable;
+
+            if (!isInputFocused && questions.length > 0) {
+                // 上或右：下一題
+                if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    nextQuestion();
+                }
+                // 左或下：上一題
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    prevQuestion();
+                }
             }
         });
 
