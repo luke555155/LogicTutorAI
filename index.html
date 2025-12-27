@@ -1187,9 +1187,9 @@
                     };
                     div.appendChild(checkbox);
                     
-                    // 點擊選項也能切換核取方塊
+                    // 雙擊選項切換核取方塊（避免誤觸）
                     if (!hasAnswered) {
-                        div.onclick = () => {
+                        div.ondblclick = () => {
                             checkbox.checked = !checkbox.checked;
                             checkbox.dispatchEvent(new Event('change'));
                         };
@@ -1206,9 +1206,9 @@
                     indicator.textContent = opt.letter;
                     div.appendChild(indicator);
                     
-                    // 單選題點擊事件
+                    // 單選題雙擊事件（避免誤觸）
                     if (!hasAnswered) {
-                        div.onclick = () => selectSingleOption(opt.letter, question);
+                        div.ondblclick = () => selectSingleOption(opt.letter, question);
                     }
                 }
                 
