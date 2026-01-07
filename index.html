@@ -605,7 +605,7 @@
         /* 手機版主要內容區域調整 */
         @media (max-width: 1024px) {
             .main-content-area {
-                padding-bottom: 80px !important;
+                padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
             }
         }
 
@@ -681,7 +681,7 @@
                 align-items: center;
             }
             .main-content-area {
-                padding-bottom: 100px !important;
+                padding-bottom: calc(180px + env(safe-area-inset-bottom)) !important;
             }
         }
         .bottom-nav-btn {
@@ -1290,6 +1290,52 @@
                     </div>
                     <!-- Dialog 內容 -->
                     <div class="p-4 sm:p-6 space-y-5">
+                        <!-- 閱讀範圍設定 -->
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <span class="text-sm font-medium text-slate-300">閱讀範圍</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <label class="flex items-center gap-3 cursor-pointer group touch-target flex-1">
+                                    <input type="checkbox" id="rangeEnabledCheckbox" class="checkbox-custom" onchange="toggleRangeEnabled()">
+                                    <span class="text-sm text-slate-400 group-hover:text-white transition">啟用範圍限制</span>
+                                </label>
+                            </div>
+                            <div id="rangeInputContainer" class="hidden">
+                                <div class="flex items-center gap-2 mt-3">
+                                    <div class="flex-1">
+                                        <label class="block text-xs text-slate-500 mb-1">起始題號</label>
+                                        <input type="number" id="rangeStartInput" min="1" placeholder="1"
+                                               class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-center text-white text-sm focus:outline-none focus:border-cyan-500 touch-target"
+                                               onchange="updateRangeSettings()">
+                                    </div>
+                                    <span class="text-slate-500 mt-5">~</span>
+                                    <div class="flex-1">
+                                        <label class="block text-xs text-slate-500 mb-1">結束題號</label>
+                                        <input type="number" id="rangeEndInput" min="1" placeholder="全部"
+                                               class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-center text-white text-sm focus:outline-none focus:border-cyan-500 touch-target"
+                                               onchange="updateRangeSettings()">
+                                    </div>
+                                </div>
+                                <div id="rangeInfo" class="mt-2 bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+                                    <p class="text-xs text-slate-400 flex items-start gap-2">
+                                        <svg class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <span id="rangeInfoText">目前範圍：第 1 題 ~ 第 -- 題（共 -- 題）</span>
+                                    </p>
+                                </div>
+                                <button onclick="resetRange()" class="mt-2 w-full bg-slate-700 hover:bg-slate-600 active:bg-slate-500 py-2 rounded-lg text-xs font-medium transition touch-target">
+                                    重設為全部題目
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="h-px bg-slate-700"></div>
+
                         <!-- 隨機跳題設定 -->
                         <div class="space-y-3">
                             <label class="flex items-center gap-3 cursor-pointer group touch-target">
@@ -1334,6 +1380,11 @@
         let selectedOptions = [];     // 多選題已選選項
         let hasAnswered = false;      // 當前題目是否已作答
         let randomJumpEnabled = false; // 隨機跳題功能
+
+        // 閱讀範圍設定
+        let rangeEnabled = false;     // 是否啟用範圍限制
+        let rangeStart = 1;           // 起始題號
+        let rangeEnd = null;          // 結束題號（null 表示到最後一題）
 
         // GROQ AI 設定
         let groqApiKey = '';          // GROQ API Key
@@ -1864,14 +1915,79 @@
         }
 
         // ==================== 導航功能 ====================
+
+        /**
+         * 取得有效的題目範圍（考慮閱讀範圍設定）
+         * @returns {{ startIdx: number, endIdx: number, startNum: number, endNum: number }}
+         */
+        function getValidRange() {
+            if (!rangeEnabled || questions.length === 0) {
+                return {
+                    startIdx: 0,
+                    endIdx: questions.length - 1,
+                    startNum: questions[0]?.number || 1,
+                    endNum: questions[questions.length - 1]?.number || 1
+                };
+            }
+
+            // 找到範圍內的起始和結束索引
+            const effectiveEnd = rangeEnd || questions[questions.length - 1].number;
+            let startIdx = questions.findIndex(q => q.number >= rangeStart);
+            let endIdx = questions.findIndex(q => q.number > effectiveEnd);
+
+            if (startIdx === -1) startIdx = 0;
+            if (endIdx === -1) endIdx = questions.length;
+            endIdx = endIdx - 1;
+
+            // 確保有效範圍
+            if (startIdx > endIdx) {
+                startIdx = 0;
+                endIdx = questions.length - 1;
+            }
+
+            return {
+                startIdx,
+                endIdx,
+                startNum: questions[startIdx]?.number || 1,
+                endNum: questions[endIdx]?.number || 1
+            };
+        }
+
+        /**
+         * 檢查當前題目是否在有效範圍內
+         */
+        function isInValidRange(index) {
+            const range = getValidRange();
+            return index >= range.startIdx && index <= range.endIdx;
+        }
+
         function prevQuestion() {
-            if (currentIndex > 0) {
+            const range = getValidRange();
+
+            // 如果當前不在範圍內，跳到範圍的最後一題
+            if (!isInValidRange(currentIndex)) {
+                currentIndex = range.endIdx;
+                renderQuestion();
+                return;
+            }
+
+            // 在範圍內向前跳
+            if (currentIndex > range.startIdx) {
                 currentIndex--;
                 renderQuestion();
             }
         }
 
         function nextQuestion() {
+            const range = getValidRange();
+
+            // 如果當前不在範圍內，跳到範圍的第一題
+            if (!isInValidRange(currentIndex)) {
+                currentIndex = range.startIdx;
+                renderQuestion();
+                return;
+            }
+
             // 如果啟用隨機跳題
             if (randomJumpEnabled) {
                 const nextIdx = getRandomNextIndex();
@@ -1883,8 +1999,8 @@
                 return;
             }
 
-            // 一般順序跳題
-            if (currentIndex < questions.length - 1) {
+            // 一般順序跳題（在範圍內）
+            if (currentIndex < range.endIdx) {
                 currentIndex++;
                 renderQuestion();
             }
@@ -1893,10 +2009,16 @@
         function jumpToQuestion() {
             const input = document.getElementById('jumpInput');
             const num = parseInt(input.value);
-            
+
             // 尋找對應題號的索引
             const index = questions.findIndex(q => q.number === num);
             if (index !== -1) {
+                // 檢查是否在範圍內
+                if (rangeEnabled && !isInValidRange(index)) {
+                    const range = getValidRange();
+                    alert(`題目 ${num} 不在設定的閱讀範圍內（第 ${range.startNum} ~ ${range.endNum} 題）`);
+                    return;
+                }
                 currentIndex = index;
                 renderQuestion();
             } else {
@@ -2410,6 +2532,27 @@
             } else {
                 infoDiv.classList.add('hidden');
             }
+
+            // 載入閱讀範圍設定
+            const savedRangeEnabled = localStorage.getItem('range_enabled');
+            const savedRangeStart = localStorage.getItem('range_start');
+            const savedRangeEnd = localStorage.getItem('range_end');
+
+            rangeEnabled = savedRangeEnabled === 'true';
+            rangeStart = savedRangeStart ? parseInt(savedRangeStart) : 1;
+            rangeEnd = savedRangeEnd ? parseInt(savedRangeEnd) : null;
+
+            document.getElementById('rangeEnabledCheckbox').checked = rangeEnabled;
+            document.getElementById('rangeStartInput').value = rangeStart;
+            document.getElementById('rangeEndInput').value = rangeEnd || '';
+
+            // 顯示/隱藏範圍輸入區域
+            const rangeInputContainer = document.getElementById('rangeInputContainer');
+            if (rangeEnabled) {
+                rangeInputContainer.classList.remove('hidden');
+            } else {
+                rangeInputContainer.classList.add('hidden');
+            }
         }
 
         /**
@@ -2448,13 +2591,73 @@
         }
 
         /**
+         * 切換閱讀範圍限制功能
+         */
+        function toggleRangeEnabled() {
+            const checkbox = document.getElementById('rangeEnabledCheckbox');
+            rangeEnabled = checkbox.checked;
+            localStorage.setItem('range_enabled', rangeEnabled.toString());
+
+            // 顯示/隱藏範圍輸入區域
+            const rangeInputContainer = document.getElementById('rangeInputContainer');
+            if (rangeEnabled) {
+                rangeInputContainer.classList.remove('hidden');
+            } else {
+                rangeInputContainer.classList.add('hidden');
+            }
+
+            // 如果當前題目不在範圍內，跳到範圍內第一題
+            if (rangeEnabled && !isInValidRange(currentIndex)) {
+                const range = getValidRange();
+                currentIndex = range.startIdx;
+                renderQuestion();
+            }
+        }
+
+        /**
+         * 更新閱讀範圍設定
+         */
+        function updateRangeSettings() {
+            const startInput = document.getElementById('rangeStartInput');
+            const endInput = document.getElementById('rangeEndInput');
+
+            rangeStart = parseInt(startInput.value) || 1;
+            rangeEnd = endInput.value ? parseInt(endInput.value) : null;
+
+            // 確保起始不小於1
+            if (rangeStart < 1) {
+                rangeStart = 1;
+                startInput.value = 1;
+            }
+
+            // 確保結束不小於起始
+            if (rangeEnd !== null && rangeEnd < rangeStart) {
+                rangeEnd = rangeStart;
+                endInput.value = rangeStart;
+            }
+
+            localStorage.setItem('range_start', rangeStart.toString());
+            localStorage.setItem('range_end', rangeEnd ? rangeEnd.toString() : '');
+
+            // 如果當前題目不在範圍內，跳到範圍內第一題
+            if (rangeEnabled && !isInValidRange(currentIndex)) {
+                const range = getValidRange();
+                currentIndex = range.startIdx;
+                renderQuestion();
+            }
+        }
+
+        /**
          * 取得隨機跳題的下一題索引
          * 排除已答對的題目，但允許答錯的題目
          */
         function getRandomNextIndex() {
-            // 收集可選擇的題目索引（排除已答對的）
+            // 取得有效範圍
+            const range = getValidRange();
+
+            // 收集可選擇的題目索引（排除已答對的，並限制在範圍內）
             const availableIndices = [];
-            for (let i = 0; i < questions.length; i++) {
+            for (let i = range.startIdx; i <= range.endIdx; i++) {
                 const q = questions[i];
                 // 排除當前題目和已答對的題目
                 if (i !== currentIndex && answerState[q.number] !== 'correct') {
@@ -2978,6 +3181,14 @@ ${optionsText}`;
             // 載入已儲存的進階設定
             const savedRandomJump = localStorage.getItem('random_jump_enabled');
             randomJumpEnabled = savedRandomJump === 'true';
+
+            // 載入閱讀範圍設定
+            const savedRangeEnabled = localStorage.getItem('range_enabled');
+            const savedRangeStart = localStorage.getItem('range_start');
+            const savedRangeEnd = localStorage.getItem('range_end');
+            rangeEnabled = savedRangeEnabled === 'true';
+            rangeStart = savedRangeStart ? parseInt(savedRangeStart) : 1;
+            rangeEnd = savedRangeEnd ? parseInt(savedRangeEnd) : null;
 
             // 初始化懸浮解析視窗拖曳功能
             initExplanationPanelDrag();
