@@ -2,7 +2,10 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
     <title>測驗作答系統</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -281,59 +284,531 @@
             border-radius: 8px;
             margin: 0.5rem 0;
         }
+
+        /* ========================================
+           手機版 RWD 深度優化樣式
+           ======================================== */
+
+        /* 手機版 Header */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex !important;
+            }
+            .desktop-nav {
+                display: none !important;
+            }
+        }
+        @media (min-width: 769px) {
+            .mobile-menu-btn {
+                display: none !important;
+            }
+            .mobile-menu-panel {
+                display: none !important;
+            }
+        }
+
+        /* 手機選單面板 */
+        .mobile-menu-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.98);
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .mobile-menu-panel.open {
+            transform: translateX(0);
+        }
+        .mobile-menu-panel .menu-content {
+            padding: 1rem;
+            padding-top: 4rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .mobile-menu-panel .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            background: rgba(51, 65, 85, 0.5);
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            transition: all 0.2s;
+        }
+        .mobile-menu-panel .menu-item:active {
+            background: rgba(59, 130, 246, 0.3);
+            transform: scale(0.98);
+        }
+        .mobile-menu-panel .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        /* 響應式導航列 */
+        @media (max-width: 640px) {
+            .nav-btn-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .nav-btn-group button {
+                width: 100%;
+                justify-content: center;
+            }
+            .jump-input-group {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* 題目頭部按鈕響應式 */
+        @media (max-width: 640px) {
+            .question-header-wrapper {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: stretch !important;
+            }
+            .question-header-left {
+                justify-content: center;
+            }
+            .question-header-right {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+            .question-header-right button {
+                width: 100%;
+                justify-content: center;
+                font-size: 0.8rem;
+                padding: 0.625rem 0.75rem;
+            }
+            .question-header-right button span {
+                display: none;
+            }
+            .question-header-right button svg {
+                width: 1.25rem;
+                height: 1.25rem;
+            }
+        }
+        @media (max-width: 400px) {
+            .question-header-right {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        /* 選項按鈕手機優化 */
+        @media (max-width: 640px) {
+            .option-btn {
+                padding: 1rem !important;
+                font-size: 0.95rem !important;
+            }
+            .option-btn:hover:not(.answered) {
+                transform: none;
+            }
+            .option-btn:active:not(.answered) {
+                transform: scale(0.98);
+                background: rgba(59, 130, 246, 0.15);
+            }
+        }
+
+        /* 統計卡片手機優化 */
+        @media (max-width: 1024px) {
+            .stats-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 40;
+                background: rgba(30, 41, 59, 0.98);
+                backdrop-filter: blur(12px);
+                border-top: 1px solid rgba(71, 85, 105, 0.5);
+                border-radius: 20px 20px 0 0;
+                padding: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease, padding 0.3s ease;
+            }
+            .stats-panel.open {
+                max-height: 80vh;
+                padding: 1.25rem;
+                padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+            }
+            .stats-toggle-btn {
+                display: flex !important;
+            }
+        }
+        @media (min-width: 1025px) {
+            .stats-toggle-btn {
+                display: none !important;
+            }
+        }
+
+        /* 統計面板切換按鈕 */
+        .stats-toggle-btn {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 45;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+            transition: all 0.2s;
+        }
+        .stats-toggle-btn:active {
+            transform: scale(0.95);
+        }
+        .stats-toggle-btn.open {
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        /* 答題卡手機優化 */
+        @media (max-width: 640px) {
+            .answer-card-grid {
+                gap: 4px !important;
+            }
+            .answer-card-item {
+                width: 28px !important;
+                height: 28px !important;
+                font-size: 0.65rem !important;
+            }
+        }
+
+        /* 浮動解析視窗手機優化 - 全螢幕模式 */
+        @media (max-width: 768px) {
+            .floating-panel {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
+                min-width: unset !important;
+                border-radius: 0 !important;
+                resize: none !important;
+                background: #0f172a !important;
+                box-shadow: none !important;
+            }
+            .floating-panel-header {
+                cursor: default;
+                padding: 1rem;
+                padding-top: calc(1rem + env(safe-area-inset-top));
+                background: #1e293b !important;
+                border-bottom: 1px solid #334155 !important;
+            }
+            .floating-panel-body {
+                padding: 1rem;
+                padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+                background: #0f172a !important;
+            }
+            /* 手機版關閉按鈕加大 */
+            .floating-panel .close-btn-mobile {
+                width: 44px !important;
+                height: 44px !important;
+                min-width: 44px !important;
+                min-height: 44px !important;
+            }
+        }
+
+        /* Dialog 手機優化 */
+        @media (max-width: 640px) {
+            .dialog-content {
+                margin: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-height: 100% !important;
+                border-radius: 0 !important;
+            }
+            .dialog-padding {
+                padding: 0 !important;
+            }
+            .settings-dialog-content {
+                max-height: 100vh !important;
+                overflow-y: auto !important;
+            }
+        }
+
+        /* 圖片 Dialog 手機優化 */
+        @media (max-width: 768px) {
+            .image-dialog-wrapper {
+                padding: 0 !important;
+            }
+            .image-dialog-content {
+                width: 100% !important;
+                height: 100% !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
+                border-radius: 0 !important;
+            }
+            .image-container {
+                min-height: 60vh !important;
+                max-height: calc(100vh - 120px) !important;
+            }
+        }
+
+        /* 跳題輸入框手機優化 */
+        @media (max-width: 480px) {
+            .jump-controls {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            .jump-controls input {
+                width: 60px !important;
+            }
+            .jump-controls span {
+                display: none;
+            }
+        }
+
+        /* 觸控友善的按鈕尺寸 */
+        @media (max-width: 768px) {
+            .touch-target {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+
+        /* 安全區域適配 (iPhone X+ 瀏海和底部) */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            .safe-area-top {
+                padding-top: env(safe-area-inset-top);
+            }
+            .safe-area-bottom {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
+        /* 手機版主要內容區域調整 */
+        @media (max-width: 1024px) {
+            .main-content-area {
+                padding-bottom: 80px !important;
+            }
+        }
+
+        /* 禁止手機上的文字選取（提升觸控體驗） */
+        @media (max-width: 768px) {
+            .no-select {
+                -webkit-user-select: none;
+                user-select: none;
+                -webkit-touch-callout: none;
+            }
+        }
+
+        /* 平滑滾動 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 手機上隱藏捲軸但保留功能 */
+        @media (max-width: 768px) {
+            .hide-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
+        /* 底部導航欄樣式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(71, 85, 105, 0.5);
+            padding: 0.5rem 1rem;
+            padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+            display: none;
+        }
+        @media (max-width: 640px) {
+            .bottom-nav {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+            }
+            .main-content-area {
+                padding-bottom: 100px !important;
+            }
+        }
+        .bottom-nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            color: #94a3b8;
+            font-size: 0.7rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .bottom-nav-btn:active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            transform: scale(0.95);
+        }
+        .bottom-nav-btn svg {
+            width: 24px;
+            height: 24px;
+        }
     </style>
 </head>
 <body class="text-gray-100">
     <!-- 主容器 -->
     <div id="app" class="min-h-screen flex flex-col">
         <!-- 頂部導航列 -->
-        <header class="bg-slate-900/80 backdrop-blur-sm border-b border-slate-700 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center font-bold text-lg">
+        <header class="bg-slate-900/80 backdrop-blur-sm border-b border-slate-700 sticky top-0 z-50 safe-area-top">
+            <div class="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center font-bold text-base sm:text-lg shrink-0">
                         L+
                     </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-white">測驗作答系統</h1>
-                        <p class="text-xs text-slate-400">Markdown 題庫練習工具</p>
+                    <div class="min-w-0">
+                        <h1 class="text-base sm:text-xl font-bold text-white truncate">測驗作答系統</h1>
+                        <p class="text-xs text-slate-400 hidden sm:block">Markdown 題庫練習工具</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
+                <!-- 桌面版導航按鈕 -->
+                <div class="desktop-nav flex items-center gap-2 sm:gap-3">
                     <!-- 檔案選擇按鈕 -->
-                    <label class="cursor-pointer bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                    <label class="cursor-pointer bg-slate-700 hover:bg-slate-600 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 touch-target">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                         </svg>
-                        載入題庫
+                        <span class="hidden sm:inline">載入題庫</span>
                         <input type="file" id="fileInput" accept=".md" class="hidden" onchange="loadFileFromInput(event)">
                     </label>
                     <!-- 重新載入按鈕 -->
-                    <button onclick="reloadQuestions()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                    <button onclick="reloadQuestions()" class="bg-blue-600 hover:bg-blue-500 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 touch-target">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
-                        重新載入
+                        <span class="hidden sm:inline">重新載入</span>
                     </button>
                     <!-- 設定按鈕 -->
-                    <button onclick="openSettingsDialog()" class="bg-slate-700 hover:bg-slate-600 p-2 rounded-lg transition" title="AI 設定">
+                    <button onclick="openSettingsDialog()" class="bg-slate-700 hover:bg-slate-600 p-2 rounded-lg transition touch-target" title="AI 設定">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                     </button>
                     <!-- 進階設定按鈕 -->
-                    <button onclick="openAdvancedSettingsDialog()" class="bg-slate-700 hover:bg-slate-600 p-2 rounded-lg transition" title="進階設定">
+                    <button onclick="openAdvancedSettingsDialog()" class="bg-slate-700 hover:bg-slate-600 p-2 rounded-lg transition touch-target" title="進階設定">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
                         </svg>
                     </button>
                 </div>
+                <!-- 手機版漢堡選單按鈕 -->
+                <button onclick="openMobileMenu()" class="mobile-menu-btn bg-slate-700 hover:bg-slate-600 p-2.5 rounded-lg transition touch-target" style="display: none;">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
             </div>
         </header>
 
+        <!-- 手機版側邊選單 -->
+        <div id="mobileMenuPanel" class="mobile-menu-panel">
+            <button onclick="closeMobileMenu()" class="close-btn">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            <div class="menu-content">
+                <h2 class="text-xl font-bold text-white mb-6 px-2">選單</h2>
+
+                <!-- 載入題庫 -->
+                <label class="menu-item cursor-pointer">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    <span>載入題庫</span>
+                    <input type="file" accept=".md" class="hidden" onchange="loadFileFromInput(event); closeMobileMenu();">
+                </label>
+
+                <!-- 重新載入 -->
+                <button onclick="reloadQuestions(); closeMobileMenu();" class="menu-item w-full text-left">
+                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span>重新載入題庫</span>
+                </button>
+
+                <!-- AI 設定 -->
+                <button onclick="openSettingsDialog(); closeMobileMenu();" class="menu-item w-full text-left">
+                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    <span>AI 設定 (GROQ)</span>
+                </button>
+
+                <!-- 進階設定 -->
+                <button onclick="openAdvancedSettingsDialog(); closeMobileMenu();" class="menu-item w-full text-left">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                    </svg>
+                    <span>進階設定</span>
+                </button>
+
+                <!-- 下載範本 -->
+                <a href="sampleMd/sample.md" download class="menu-item" onclick="closeMobileMenu();">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span>下載 MD 格式範本</span>
+                </a>
+
+                <div class="h-px bg-slate-700 my-4"></div>
+
+                <!-- 查看答題統計 -->
+                <button onclick="toggleStatsPanel(); closeMobileMenu();" class="menu-item w-full text-left">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>查看答題統計</span>
+                </button>
+
+                <!-- 重設進度 -->
+                <button onclick="resetProgress(); closeMobileMenu();" class="menu-item w-full text-left">
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    <span>重設答題進度</span>
+                </button>
+            </div>
+        </div>
+
         <!-- 主內容區 -->
-        <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6">
+        <main class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
             <!-- 載入中狀態 -->
             <div id="loadingState" class="flex flex-col items-center justify-center py-20">
                 <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full loading-spinner mb-4"></div>
@@ -367,75 +842,85 @@
             </div>
 
             <!-- 題目區域 -->
-            <div id="quizContainer" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div id="quizContainer" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 main-content-area">
                 <!-- 左側：題目區 -->
-                <div class="lg:col-span-3 space-y-4">
-                    <!-- 導航按鈕（移至題目卡片上方） -->
-                    <div class="flex items-center justify-between bg-slate-800/30 backdrop-blur rounded-xl px-4 py-3 border border-slate-700/50">
-                        <button onclick="prevQuestion()" id="prevBtn" class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-5 py-2.5 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                            </svg>
-                            上一題
-                        </button>
-                        
-                        <!-- 快速跳題 -->
-                        <div class="flex items-center gap-2">
-                            <span class="text-slate-400 text-sm">跳至第</span>
-                            <input type="number" id="jumpInput" min="1" class="w-20 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-center text-white focus:outline-none focus:border-blue-500" onkeypress="if(event.key==='Enter')jumpToQuestion()">
-                            <span class="text-slate-400 text-sm">題</span>
-                            <button onclick="jumpToQuestion()" class="bg-slate-600 hover:bg-slate-500 px-4 py-2 rounded-lg text-sm transition">跳轉</button>
+                <div class="lg:col-span-3 space-y-3 sm:space-y-4">
+                    <!-- 導航按鈕（移至題目卡片上方）- 手機版優化 -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-800/30 backdrop-blur rounded-xl px-3 sm:px-4 py-3 border border-slate-700/50">
+                        <!-- 上一題/下一題按鈕 - 手機版橫排 -->
+                        <div class="flex items-center justify-between sm:justify-start gap-2 order-2 sm:order-1">
+                            <button onclick="prevQuestion()" id="prevBtn" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 bg-slate-700 hover:bg-slate-600 active:bg-slate-500 px-3 sm:px-5 py-2.5 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed touch-target no-select">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                                <span class="text-sm sm:text-base">上一題</span>
+                            </button>
+
+                            <button onclick="nextQuestion()" id="nextBtn" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 bg-slate-700 hover:bg-slate-600 active:bg-slate-500 px-3 sm:px-5 py-2.5 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed touch-target no-select">
+                                <span class="text-sm sm:text-base">下一題</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
                         </div>
-                        
-                        <button onclick="nextQuestion()" id="nextBtn" class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-5 py-2.5 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
-                            下一題
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </button>
+
+                        <!-- 快速跳題 - 手機版置中 -->
+                        <div class="flex items-center justify-center gap-2 jump-controls order-1 sm:order-2">
+                            <span class="text-slate-400 text-xs sm:text-sm hidden sm:inline">跳至第</span>
+                            <input type="number" id="jumpInput" min="1" placeholder="題號" class="w-16 sm:w-20 bg-slate-800 border border-slate-600 rounded-lg px-2 sm:px-3 py-2 text-center text-white text-sm focus:outline-none focus:border-blue-500 touch-target" onkeypress="if(event.key==='Enter')jumpToQuestion()">
+                            <span class="text-slate-400 text-xs sm:text-sm hidden sm:inline">題</span>
+                            <button onclick="jumpToQuestion()" class="bg-blue-600 hover:bg-blue-500 active:bg-blue-400 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition touch-target no-select">跳轉</button>
+                        </div>
                     </div>
                     
                     <!-- 題目卡片 -->
                     <div class="bg-slate-800/50 backdrop-blur rounded-2xl border border-slate-700 overflow-hidden">
-                        <!-- 題目頭部 -->
-                        <div class="bg-slate-800 px-6 py-4 border-b border-slate-700 flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <!-- 解析提示按鈕（有解析時才顯示） -->
-                                <button id="explanationBtn" onclick="toggleExplanationPanel()" class="hidden w-9 h-9 flex items-center justify-center rounded-lg bg-amber-500/20 hover:bg-amber-500/40 border border-amber-500/50 transition group" title="查看題目解析">
-                                    <svg class="w-5 h-5 text-amber-400 group-hover:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                                    </svg>
-                                </button>
-                                <span id="questionNumber" class="text-lg font-bold text-white">第 1 題 / 611 題</span>
-                                <span id="questionType" class="px-3 py-1 bg-blue-600/20 text-blue-400 rounded-full text-sm font-medium">單選題</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <!-- 查看圖片按鈕（附圖片題才顯示） -->
-                                <button id="viewImageBtn" onclick="openImageDialog()" class="hidden bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                    <span>查看圖片</span>
-                                </button>
-                                <!-- 翻譯按鈕 -->
-                                <button id="translateBtn" onclick="toggleTranslation()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
-                                    </svg>
-                                    <span id="translateBtnText">顯示中文翻譯</span>
-                                </button>
-                                <!-- AI 解析按鈕 -->
-                                <button id="aiAnalyzeBtn" onclick="analyzeWithAI()" class="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-purple-500/25">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                                    </svg>
-                                    <span>AI 解析</span>
-                                </button>
+                        <!-- 題目頭部 - 手機版優化 -->
+                        <div class="bg-slate-800 px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-700">
+                            <div class="question-header-wrapper flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                <!-- 左側：題號和題型 -->
+                                <div class="question-header-left flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                                    <!-- 解析提示按鈕（有解析時才顯示） -->
+                                    <button id="explanationBtn" onclick="toggleExplanationPanel()" class="hidden w-9 h-9 shrink-0 flex items-center justify-center rounded-lg bg-amber-500/20 hover:bg-amber-500/40 active:bg-amber-500/60 border border-amber-500/50 transition group touch-target" title="查看題目解析">
+                                        <svg class="w-5 h-5 text-amber-400 group-hover:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                        </svg>
+                                    </button>
+                                    <span id="questionNumber" class="text-sm sm:text-lg font-bold text-white whitespace-nowrap">第 1 題 / 611 題</span>
+                                    <span id="questionType" class="px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-600/20 text-blue-400 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">單選題</span>
+                                </div>
+                                <!-- 右側：功能按鈕群組 - 手機版網格排列 -->
+                                <div class="question-header-right flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
+                                    <!-- 查看圖片按鈕（附圖片題才顯示） -->
+                                    <button id="viewImageBtn" onclick="openImageDialog()" class="hidden flex-1 sm:flex-none bg-amber-600 hover:bg-amber-500 active:bg-amber-400 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 sm:gap-2 touch-target no-select">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        <span class="hidden sm:inline">查看圖片</span>
+                                        <span class="sm:hidden">圖片</span>
+                                    </button>
+                                    <!-- 翻譯按鈕 -->
+                                    <button id="translateBtn" onclick="toggleTranslation()" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 active:bg-slate-500 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 sm:gap-2 touch-target no-select">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                                        </svg>
+                                        <span id="translateBtnText" class="hidden sm:inline">顯示中文翻譯</span>
+                                        <span class="sm:hidden">翻譯</span>
+                                    </button>
+                                    <!-- AI 解析按鈕 -->
+                                    <button id="aiAnalyzeBtn" onclick="analyzeWithAI()" class="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 active:from-purple-400 active:to-pink-300 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg shadow-purple-500/25 touch-target no-select">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                        </svg>
+                                        <span class="hidden sm:inline">AI 解析</span>
+                                        <span class="sm:hidden">AI</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
                         <!-- 題目內容 -->
-                        <div class="p-6">
+                        <div class="p-4 sm:p-6">
                             <!-- 圖片區（如有） -->
                             <div id="questionImage" class="hidden mb-6">
                                 <img id="questionImageSrc" src="" alt="題目圖片" class="max-w-full rounded-lg border border-slate-600">
@@ -504,57 +989,68 @@
                     </div>
                 </div>
                 
-                <!-- 右側：答題卡與統計 -->
-                <div class="space-y-4">
+                <!-- 右側：答題卡與統計 - 手機版變成可切換的底部面板 -->
+                <div id="statsPanel" class="stats-panel space-y-4 lg:space-y-4">
+                    <!-- 手機版面板標題 -->
+                    <div class="lg:hidden flex items-center justify-between mb-2">
+                        <h2 class="text-lg font-bold text-white">答題狀態</h2>
+                        <button onclick="toggleStatsPanel()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-700 hover:bg-slate-600 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+
                     <!-- 統計卡片 -->
-                    <div class="bg-slate-800/50 backdrop-blur rounded-2xl border border-slate-700 p-5">
-                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <div class="bg-slate-800/50 lg:backdrop-blur rounded-2xl lg:border lg:border-slate-700 p-4 lg:p-5">
+                        <h3 class="text-base lg:text-lg font-bold text-white mb-3 lg:mb-4 flex items-center gap-2">
                             <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                             </svg>
                             答題統計
                         </h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between">
-                                <span class="text-slate-400">答對</span>
-                                <span id="correctCount" class="text-2xl font-bold text-green-400">0</span>
+                        <!-- 手機版橫向統計 / 桌面版縱向統計 -->
+                        <div class="flex lg:flex-col gap-4 lg:gap-0 lg:space-y-3">
+                            <div class="flex-1 lg:flex-none flex flex-col lg:flex-row items-center lg:items-center lg:justify-between text-center lg:text-left">
+                                <span class="text-slate-400 text-xs lg:text-base mb-1 lg:mb-0">答對</span>
+                                <span id="correctCount" class="text-xl lg:text-2xl font-bold text-green-400">0</span>
                             </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-slate-400">答錯</span>
-                                <span id="wrongCount" class="text-2xl font-bold text-red-400">0</span>
+                            <div class="flex-1 lg:flex-none flex flex-col lg:flex-row items-center lg:items-center lg:justify-between text-center lg:text-left">
+                                <span class="text-slate-400 text-xs lg:text-base mb-1 lg:mb-0">答錯</span>
+                                <span id="wrongCount" class="text-xl lg:text-2xl font-bold text-red-400">0</span>
                             </div>
-                            <div class="h-px bg-slate-700 my-2"></div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-slate-400">正確率</span>
-                                <span id="accuracy" class="text-2xl font-bold text-blue-400">0%</span>
-                            </div>
-                            <!-- 進度條 -->
-                            <div class="mt-3">
-                                <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                                    <div id="progressBar" class="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-300" style="width: 0%"></div>
-                                </div>
-                                <p id="progressText" class="text-xs text-slate-500 mt-1 text-center">已作答 0 / 0 題</p>
+                            <div class="hidden lg:block h-px bg-slate-700 my-2"></div>
+                            <div class="flex-1 lg:flex-none flex flex-col lg:flex-row items-center lg:items-center lg:justify-between text-center lg:text-left">
+                                <span class="text-slate-400 text-xs lg:text-base mb-1 lg:mb-0">正確率</span>
+                                <span id="accuracy" class="text-xl lg:text-2xl font-bold text-blue-400">0%</span>
                             </div>
                         </div>
+                        <!-- 進度條 -->
+                        <div class="mt-3 lg:mt-3">
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div id="progressBar" class="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <p id="progressText" class="text-xs text-slate-500 mt-1 text-center">已作答 0 / 0 題</p>
+                        </div>
                         <!-- 重設按鈕 -->
-                        <button onclick="resetProgress()" class="w-full mt-4 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg text-sm font-medium transition">
+                        <button onclick="resetProgress()" class="w-full mt-3 lg:mt-4 bg-slate-700 hover:bg-slate-600 active:bg-slate-500 py-2 rounded-lg text-sm font-medium transition touch-target no-select">
                             重設進度
                         </button>
                     </div>
-                    
+
                     <!-- 答題卡 -->
-                    <div class="bg-slate-800/50 backdrop-blur rounded-2xl border border-slate-700 p-5">
-                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <div class="bg-slate-800/50 lg:backdrop-blur rounded-2xl lg:border lg:border-slate-700 p-4 lg:p-5">
+                        <h3 class="text-base lg:text-lg font-bold text-white mb-3 lg:mb-4 flex items-center gap-2">
                             <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
                             答題卡
                         </h3>
-                        <div id="answerCard" class="flex flex-wrap max-h-80 overflow-y-auto overflow-x-hidden pr-1" style="gap: 3px;">
+                        <div id="answerCard" class="answer-card-grid flex flex-wrap max-h-48 lg:max-h-80 overflow-y-auto overflow-x-hidden pr-1 hide-scrollbar" style="gap: 3px;">
                             <!-- 動態生成題號格子 -->
                         </div>
                         <!-- 圖例 -->
-                        <div class="mt-4 flex items-center justify-center gap-4 text-xs text-slate-400">
+                        <div class="mt-3 lg:mt-4 flex items-center justify-center gap-3 lg:gap-4 text-xs text-slate-400">
                             <div class="flex items-center gap-1">
                                 <div class="w-3 h-3 bg-green-500 rounded"></div>
                                 <span>正確</span>
@@ -571,6 +1067,13 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 手機版統計面板切換按鈕 -->
+            <button id="statsToggleBtn" onclick="toggleStatsPanel()" class="stats-toggle-btn hidden">
+                <svg id="statsToggleIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+            </button>
         </main>
 
         <!-- 懸浮解析視窗 -->
@@ -584,8 +1087,8 @@
                     <span>題目解析</span>
                     <span id="explanationQuestionNum" class="text-xs text-amber-400/70 ml-1"></span>
                 </h4>
-                <button onclick="closeExplanationPanel()" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-500/30 transition text-slate-400 hover:text-red-400" title="關閉 (ESC)">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button onclick="closeExplanationPanel()" class="close-btn-mobile w-10 h-10 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg bg-red-500/20 sm:bg-transparent hover:bg-red-500/30 active:bg-red-500/50 transition text-red-400 hover:text-red-300 touch-target" title="關閉 (ESC)">
+                    <svg class="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
@@ -598,15 +1101,15 @@
             </div>
         </div>
 
-        <!-- 圖片 Dialog 彈窗 -->
+        <!-- 圖片 Dialog 彈窗 - 手機版全螢幕 -->
         <div id="imageDialog" class="fixed inset-0 z-[100] hidden" onclick="handleDialogBackdropClick(event)">
             <!-- 背景遮罩 -->
             <div class="absolute inset-0 bg-black/85 backdrop-blur-sm"></div>
             <!-- Dialog 內容 -->
-            <div class="absolute inset-0 flex items-center justify-center p-4 md:p-10 pointer-events-none">
-                <div class="relative bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl w-full max-w-4xl max-h-full overflow-hidden flex flex-col pointer-events-auto" onclick="event.stopPropagation()">
+            <div class="image-dialog-wrapper absolute inset-0 flex items-center justify-center p-0 sm:p-4 md:p-10 pointer-events-none">
+                <div class="image-dialog-content relative bg-slate-900 sm:rounded-2xl border-0 sm:border border-slate-700 shadow-2xl w-full h-full sm:h-auto sm:max-w-4xl sm:max-h-[90vh] overflow-hidden flex flex-col pointer-events-auto" onclick="event.stopPropagation()">
                     <!-- Dialog 頭部 -->
-                    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-700 bg-slate-800 shrink-0">
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-700 bg-slate-800 shrink-0 safe-area-top">
                         <h3 class="text-base font-bold text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -614,41 +1117,41 @@
                             題目圖片
                         </h3>
                         <!-- 關閉按鈕 -->
-                        <button onclick="closeImageDialog()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-600/80 hover:bg-red-500 transition text-white" title="關閉">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button onclick="closeImageDialog()" class="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-red-600/80 hover:bg-red-500 active:bg-red-400 transition text-white touch-target" title="關閉">
+                            <svg class="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
                     </div>
                     <!-- 圖片容器（支援多張圖片垂直排列） -->
-                    <div id="imageContainer" class="min-h-[50vh] max-h-[70vh] overflow-auto bg-slate-950 relative">
-                        <div id="imageWrapper" class="w-full flex flex-col items-center gap-4 p-4">
+                    <div id="imageContainer" class="image-container flex-1 min-h-0 overflow-auto bg-slate-950 relative">
+                        <div id="imageWrapper" class="w-full flex flex-col items-center gap-4 p-3 sm:p-4">
                             <!-- 圖片將由 JavaScript 動態生成 -->
                         </div>
                     </div>
                     <!-- Dialog 底部提示 -->
-                    <div class="px-4 py-2 border-t border-slate-700 bg-slate-800 text-center shrink-0">
-                        <p class="text-xs text-slate-500">滾動查看所有圖片 | <kbd class="px-1.5 py-0.5 bg-slate-700 rounded text-xs">ESC</kbd> 關閉</p>
+                    <div class="px-4 py-2 border-t border-slate-700 bg-slate-800 text-center shrink-0 safe-area-bottom">
+                        <p class="text-xs text-slate-500">滾動查看所有圖片 | <span class="hidden sm:inline"><kbd class="px-1.5 py-0.5 bg-slate-700 rounded text-xs">ESC</kbd> 關閉</span><span class="sm:hidden">點擊外部關閉</span></p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 設定 Dialog -->
+        <!-- 設定 Dialog - 手機版全螢幕 -->
         <div id="settingsDialog" class="fixed inset-0 z-[100] hidden" onclick="handleSettingsBackdropClick(event)">
             <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-            <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-                <div class="relative bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl w-full max-w-md pointer-events-auto" onclick="event.stopPropagation()">
+            <div class="dialog-padding absolute inset-0 flex items-center justify-center p-0 sm:p-4 pointer-events-none">
+                <div class="dialog-content settings-dialog-content relative bg-slate-900 sm:rounded-2xl border-0 sm:border border-slate-700 shadow-2xl w-full h-full sm:h-auto max-h-full sm:max-h-[90vh] sm:max-w-md overflow-y-auto pointer-events-auto" onclick="event.stopPropagation()">
                     <!-- Dialog 頭部 -->
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-800 rounded-t-2xl">
-                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <div class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-700 bg-slate-800 sm:rounded-t-2xl sticky top-0 z-10 safe-area-top">
+                        <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
                             AI 設定 (GROQ)
                         </h3>
-                        <button onclick="closeSettingsDialog()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition text-slate-400 hover:text-white">
+                        <button onclick="closeSettingsDialog()" class="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 active:bg-slate-600 transition text-slate-400 hover:text-white touch-target">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -731,39 +1234,39 @@
                         </div>
                     </div>
                     <!-- Dialog 底部 -->
-                    <div class="px-6 py-4 border-t border-slate-700 bg-slate-800/50 rounded-b-2xl flex justify-end gap-3">
-                        <button onclick="closeSettingsDialog()" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition">取消</button>
-                        <button onclick="saveSettings()" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-lg font-medium transition">儲存設定</button>
+                    <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-700 bg-slate-800/50 sm:rounded-b-2xl flex justify-end gap-2 sm:gap-3 sticky bottom-0 safe-area-bottom">
+                        <button onclick="closeSettingsDialog()" class="px-4 py-2.5 sm:py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 active:bg-slate-600 transition touch-target text-sm sm:text-base">取消</button>
+                        <button onclick="saveSettings()" class="bg-blue-600 hover:bg-blue-500 active:bg-blue-400 px-5 sm:px-6 py-2.5 sm:py-2 rounded-lg font-medium transition touch-target text-sm sm:text-base">儲存設定</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 進階設定 Dialog -->
+        <!-- 進階設定 Dialog - 手機版全螢幕 -->
         <div id="advancedSettingsDialog" class="fixed inset-0 z-[100] hidden" onclick="handleAdvancedSettingsBackdropClick(event)">
             <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-            <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-                <div class="relative bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl w-full max-w-md pointer-events-auto" onclick="event.stopPropagation()">
+            <div class="dialog-padding absolute inset-0 flex items-center justify-center p-0 sm:p-4 pointer-events-none">
+                <div class="dialog-content relative bg-slate-900 sm:rounded-2xl border-0 sm:border border-slate-700 shadow-2xl w-full h-full sm:h-auto max-h-full sm:max-h-[90vh] sm:max-w-md overflow-y-auto pointer-events-auto" onclick="event.stopPropagation()">
                     <!-- Dialog 頭部 -->
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-800 rounded-t-2xl">
-                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <div class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-700 bg-slate-800 sm:rounded-t-2xl sticky top-0 z-10 safe-area-top">
+                        <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
                             進階設定
                         </h3>
-                        <button onclick="closeAdvancedSettingsDialog()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition text-slate-400 hover:text-white">
+                        <button onclick="closeAdvancedSettingsDialog()" class="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 active:bg-slate-600 transition text-slate-400 hover:text-white touch-target">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
                     </div>
                     <!-- Dialog 內容 -->
-                    <div class="p-6 space-y-5">
+                    <div class="p-4 sm:p-6 space-y-5">
                         <!-- 隨機跳題設定 -->
                         <div class="space-y-3">
-                            <label class="flex items-center gap-3 cursor-pointer group">
+                            <label class="flex items-center gap-3 cursor-pointer group touch-target">
                                 <input type="checkbox" id="randomJumpCheckbox" class="checkbox-custom" onchange="toggleRandomJump()">
                                 <div>
                                     <span class="text-sm font-medium text-slate-300 group-hover:text-white transition">隨機跳題</span>
@@ -781,8 +1284,8 @@
                         </div>
                     </div>
                     <!-- Dialog 底部 -->
-                    <div class="px-6 py-4 border-t border-slate-700 bg-slate-800/50 rounded-b-2xl flex justify-end gap-3">
-                        <button onclick="closeAdvancedSettingsDialog()" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition">關閉</button>
+                    <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-700 bg-slate-800/50 sm:rounded-b-2xl flex justify-end gap-3 sticky bottom-0 safe-area-bottom">
+                        <button onclick="closeAdvancedSettingsDialog()" class="px-4 py-2.5 sm:py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 active:bg-slate-600 transition touch-target text-sm sm:text-base">關閉</button>
                     </div>
                 </div>
             </div>
@@ -1468,17 +1971,27 @@
             const panel = document.getElementById('explanationPanel');
             const header = document.getElementById('explanationPanelHeader');
 
+            // 桌面版滑鼠拖曳
             header.addEventListener('mousedown', startExplanationPanelDrag);
             document.addEventListener('mousemove', dragExplanationPanel);
             document.addEventListener('mouseup', stopExplanationPanelDrag);
 
-            // 觸控支援
-            header.addEventListener('touchstart', startExplanationPanelDragTouch, { passive: false });
-            document.addEventListener('touchmove', dragExplanationPanelTouch, { passive: false });
-            document.addEventListener('touchend', stopExplanationPanelDrag);
+            // 手機版不啟用拖曳（全螢幕模式不需要）
+            // 只在桌面版啟用觸控拖曳
+            if (window.innerWidth > 768) {
+                header.addEventListener('touchstart', startExplanationPanelDragTouch, { passive: false });
+                document.addEventListener('touchmove', dragExplanationPanelTouch, { passive: false });
+                document.addEventListener('touchend', stopExplanationPanelDrag);
+            }
         }
 
         function startExplanationPanelDrag(e) {
+            // 手機版不允許拖曳
+            if (window.innerWidth <= 768) return;
+
+            // 如果點擊的是關閉按鈕，不啟動拖曳
+            if (e.target.closest('button')) return;
+
             const panel = document.getElementById('explanationPanel');
             explanationPanelDragging = true;
             explanationPanelOffsetX = e.clientX - panel.offsetLeft;
@@ -1487,6 +2000,12 @@
         }
 
         function startExplanationPanelDragTouch(e) {
+            // 手機版不允許拖曳
+            if (window.innerWidth <= 768) return;
+
+            // 如果點擊的是關閉按鈕，不啟動拖曳
+            if (e.target.closest('button')) return;
+
             e.preventDefault();
             const touch = e.touches[0];
             const panel = document.getElementById('explanationPanel');
@@ -2341,6 +2860,115 @@ ${optionsText}`;
             return result.join('');
         }
 
+        // ==================== 手機版互動功能 ====================
+
+        /**
+         * 開啟手機版選單
+         */
+        function openMobileMenu() {
+            const panel = document.getElementById('mobileMenuPanel');
+            if (panel) {
+                panel.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        /**
+         * 關閉手機版選單
+         */
+        function closeMobileMenu() {
+            const panel = document.getElementById('mobileMenuPanel');
+            if (panel) {
+                panel.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }
+
+        /**
+         * 切換統計面板顯示（手機版）
+         */
+        function toggleStatsPanel() {
+            const panel = document.getElementById('statsPanel');
+            const toggleBtn = document.getElementById('statsToggleBtn');
+            const toggleIcon = document.getElementById('statsToggleIcon');
+
+            if (panel && toggleBtn) {
+                const isOpen = panel.classList.contains('open');
+
+                if (isOpen) {
+                    panel.classList.remove('open');
+                    toggleBtn.classList.remove('open');
+                    // 恢復統計圖示
+                    if (toggleIcon) {
+                        toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>';
+                    }
+                } else {
+                    panel.classList.add('open');
+                    toggleBtn.classList.add('open');
+                    // 變成關閉圖示
+                    if (toggleIcon) {
+                        toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+                    }
+                }
+            }
+        }
+
+        /**
+         * 檢測是否為手機裝置
+         */
+        function isMobile() {
+            return window.innerWidth <= 1024;
+        }
+
+        /**
+         * 處理視窗大小變化
+         */
+        function handleResize() {
+            const statsPanel = document.getElementById('statsPanel');
+            const statsToggleBtn = document.getElementById('statsToggleBtn');
+
+            if (isMobile()) {
+                // 手機版：確保面板初始為關閉
+                if (statsToggleBtn) statsToggleBtn.style.display = 'flex';
+            } else {
+                // 桌面版：確保面板正常顯示
+                if (statsPanel) statsPanel.classList.remove('open');
+                if (statsToggleBtn) {
+                    statsToggleBtn.style.display = 'none';
+                    statsToggleBtn.classList.remove('open');
+                }
+            }
+        }
+
+        /**
+         * 禁止手機上的過度滾動和彈性滾動效果
+         */
+        function preventOverscroll() {
+            let startY = 0;
+
+            document.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].pageY;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                const el = e.target.closest('.overflow-y-auto, .overflow-auto, .hide-scrollbar');
+                if (!el) return;
+
+                const scrollTop = el.scrollTop;
+                const scrollHeight = el.scrollHeight;
+                const clientHeight = el.clientHeight;
+                const currentY = e.touches[0].pageY;
+                const isScrollingUp = currentY > startY;
+                const isScrollingDown = currentY < startY;
+
+                // 如果滾動到頂部且試圖繼續往下拉，或滾動到底部且試圖繼續往上拉
+                if ((scrollTop === 0 && isScrollingUp) ||
+                    (scrollTop + clientHeight >= scrollHeight && isScrollingDown)) {
+                    // 不阻止預設行為，讓瀏覽器自然處理
+                }
+            }, { passive: true });
+        }
+
         // ==================== 初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
             // 載入已儲存的 GROQ 設定
@@ -2355,6 +2983,30 @@ ${optionsText}`;
 
             // 初始化懸浮解析視窗拖曳功能
             initExplanationPanelDrag();
+
+            // 初始化手機版功能
+            handleResize();
+            window.addEventListener('resize', handleResize);
+            preventOverscroll();
+
+            // 點擊手機選單外部關閉選單
+            document.getElementById('mobileMenuPanel')?.addEventListener('click', (e) => {
+                if (e.target.id === 'mobileMenuPanel') {
+                    closeMobileMenu();
+                }
+            });
+
+            // ESC 鍵關閉手機選單
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeMobileMenu();
+                    // 關閉統計面板
+                    const statsPanel = document.getElementById('statsPanel');
+                    if (statsPanel?.classList.contains('open')) {
+                        toggleStatsPanel();
+                    }
+                }
+            });
 
             autoLoadQuestions();
         });
