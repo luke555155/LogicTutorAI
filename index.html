@@ -609,6 +609,16 @@
             }
         }
 
+        /* 防止主容器過度滾動 */
+        #app {
+            overscroll-behavior: none;
+            overscroll-behavior-y: none;
+        }
+        main {
+            overscroll-behavior: none;
+            overscroll-behavior-y: none;
+        }
+
         /* 禁止手機上的文字選取（提升觸控體驗） */
         @media (max-width: 768px) {
             .no-select {
@@ -618,9 +628,25 @@
             }
         }
 
-        /* 平滑滾動 */
+        /* 滾動行為優化 */
         html {
-            scroll-behavior: smooth;
+            /* 手機上禁用平滑滾動，避免抖動 */
+            scroll-behavior: auto;
+            /* 防止過度滾動回彈效果 */
+            overscroll-behavior: none;
+            overscroll-behavior-y: none;
+        }
+        body {
+            overscroll-behavior: none;
+            overscroll-behavior-y: none;
+            /* 防止下拉刷新 */
+            -webkit-overflow-scrolling: touch;
+        }
+        /* 桌面版可以使用平滑滾動 */
+        @media (min-width: 769px) {
+            html {
+                scroll-behavior: smooth;
+            }
         }
 
         /* 手機上隱藏捲軸但保留功能 */
@@ -2940,34 +2966,6 @@ ${optionsText}`;
             }
         }
 
-        /**
-         * 禁止手機上的過度滾動和彈性滾動效果
-         */
-        function preventOverscroll() {
-            let startY = 0;
-
-            document.addEventListener('touchstart', (e) => {
-                startY = e.touches[0].pageY;
-            }, { passive: true });
-
-            document.addEventListener('touchmove', (e) => {
-                const el = e.target.closest('.overflow-y-auto, .overflow-auto, .hide-scrollbar');
-                if (!el) return;
-
-                const scrollTop = el.scrollTop;
-                const scrollHeight = el.scrollHeight;
-                const clientHeight = el.clientHeight;
-                const currentY = e.touches[0].pageY;
-                const isScrollingUp = currentY > startY;
-                const isScrollingDown = currentY < startY;
-
-                // 如果滾動到頂部且試圖繼續往下拉，或滾動到底部且試圖繼續往上拉
-                if ((scrollTop === 0 && isScrollingUp) ||
-                    (scrollTop + clientHeight >= scrollHeight && isScrollingDown)) {
-                    // 不阻止預設行為，讓瀏覽器自然處理
-                }
-            }, { passive: true });
-        }
 
         // ==================== 初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
@@ -2987,7 +2985,6 @@ ${optionsText}`;
             // 初始化手機版功能
             handleResize();
             window.addEventListener('resize', handleResize);
-            preventOverscroll();
 
             // 點擊手機選單外部關閉選單
             document.getElementById('mobileMenuPanel')?.addEventListener('click', (e) => {
