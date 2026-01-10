@@ -62,7 +62,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                         </svg>
                         <span class="hidden sm:inline">載入題庫</span>
-                        <input type="file" id="fileInput" accept=".md" class="hidden" onchange="loadFileFromInput(event)">
+                        <input type="file" id="fileInput" accept=".md" multiple class="hidden" onchange="loadFileFromInput(event)">
                     </label>
                     <!-- 重新載入按鈕 -->
                     <button onclick="reloadQuestions()" class="bg-blue-600 hover:bg-blue-500 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 touch-target">
@@ -110,7 +110,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                     </svg>
                     <span>載入題庫</span>
-                    <input type="file" accept=".md" class="hidden" onchange="loadFileFromInput(event); closeMobileMenu();">
+                    <input type="file" accept=".md" multiple class="hidden" onchange="loadFileFromInput(event); closeMobileMenu();">
                 </label>
 
                 <!-- 重新載入 -->
@@ -188,7 +188,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                         </svg>
                         選擇題庫檔案
-                        <input type="file" accept=".md" class="hidden" onchange="loadFileFromInput(event)">
+                        <input type="file" accept=".md" multiple class="hidden" onchange="loadFileFromInput(event)">
                     </label>
                     <a href="sampleMd/sample.md" download class="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded-lg font-medium transition flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

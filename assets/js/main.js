@@ -130,27 +130,50 @@ async function autoLoadQuestions() {
 }
 
 /**
- * 從檔案輸入載入題庫
+ * 從檔案輸入載入題庫（支援多檔案合併）
  */
-function loadFileFromInput(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+async function loadFileFromInput(event) {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
     showLoadingState();
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const markdown = e.target.result;
-        questions = parseQuestions(markdown);
+    try {
+        // 讀取所有檔案內容
+        const readFile = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (e) => reject(e);
+                reader.readAsText(file);
+            });
+        };
+
+        // 並行讀取所有檔案
+        const contents = await Promise.all(
+            Array.from(files).map(file => readFile(file))
+        );
+
+        // 合併所有 MD 內容（用 --- 分隔符連接）
+        const mergedMarkdown = contents.join('\n\n---\n\n');
+
+        questions = parseQuestions(mergedMarkdown);
         if (questions.length > 0) {
             loadSavedProgress();
             initQuiz();
+            console.log(`成功載入 ${files.length} 個檔案，共 ${questions.length} 題`);
         } else {
             alert('無法解析題庫檔案，請確認格式正確');
             showEmptyState();
         }
-    };
-    reader.readAsText(file);
+    } catch (error) {
+        console.error('載入檔案時發生錯誤:', error);
+        alert('載入檔案時發生錯誤，請重試');
+        showEmptyState();
+    }
+
+    // 清空 file input，讓使用者可以再次選擇相同檔案
+    event.target.value = '';
 }
 
 /**
