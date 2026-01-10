@@ -1099,10 +1099,45 @@ function filterModels() {
     ).join('');
 }
 
+function toggleAdvancedSettings() {
+    const content = document.getElementById('advancedSettingsContent');
+    const icon = document.getElementById('advancedSettingsIcon');
+    const isHidden = content.classList.contains('hidden');
+
+    if (isHidden) {
+        content.classList.remove('hidden');
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        content.classList.add('hidden');
+        icon.style.transform = 'rotate(0deg)';
+    }
+}
+
+function loadSystemPrompt() {
+    document.getElementById('customPromptInput').value = AI_SYSTEM_PROMPT;
+}
+
+function resetCustomPrompt() {
+    document.getElementById('customPromptInput').value = '';
+}
+
 function saveSettings() {
+    if (!groqApiKey) {
+        alert('請先輸入並驗證 API Key');
+        return;
+    }
+
+    let customPrompt = document.getElementById('customPromptInput').value.trim();
+
+    // 如果內容等於系統預設提示詞，儲存為空（表示使用系統預設）
+    if (customPrompt === AI_SYSTEM_PROMPT.trim()) {
+        customPrompt = '';
+    }
+
     localStorage.setItem('groq_api_key', groqApiKey);
     localStorage.setItem('groq_model', groqModel);
-    alert('設定已儲存');
+    localStorage.setItem('groq_custom_prompt', customPrompt);
+
     closeSettingsDialog();
 }
 
@@ -1336,5 +1371,227 @@ document.addEventListener('DOMContentLoaded', () => {
     autoLoadQuestions();
 });
 
-// 其他 AI 分析和設定函式（省略詳細實現，保持與原始代碼一致）
-// 如需完整的 AI 分析功能，請參考原始 index.html
+// ==================== AI 解析功能 ====================
+const AI_SYSTEM_PROMPT = `你是一個具備專業知識的考題解析專家，專門用於題庫練習與學習知識輔助。
+
+你的任務是：
+1. 仔細閱讀「題目內容」與「所有選項」
+2. 僅根據題目條件與邏輯推論作答，不可憑空猜測
+3. 明確選出一個最正確的答案
+4. 提供清楚、結構化、可學習的解析說明
+5. 全程使用「繁體中文」回覆
+
+請嚴格依照以下輸出格式回答（不得省略段落標題）：
+
+--------------------------------
+正確答案：<請填入選項代號，例如 A / B / C / D>
+
+解析：
+<說明為何該選項符合題目條件，需具備邏輯推導與關鍵判斷依據>
+
+題目條件關鍵：
+1. <從題目中萃取的關鍵條件或限制>
+2. <重要的技術名詞、規則、前提或情境>
+（如有更多關鍵條件可自行補充）
+
+各選項比較：
+A. <選項內容簡述與判斷原因> ❌ / ✅
+B. <選項內容簡述與判斷原因> ❌ / ✅
+C. <選項內容簡述與判斷原因> ❌ / ✅
+D. <選項內容簡述與判斷原因> ❌ / ✅
+
+結論：
+<總結分析，說明為何正確答案在所有選項中是最佳且最符合題意的選擇>
+--------------------------------
+
+補充規則：
+- 若題目為單選題，只能有一個「正確答案」
+- 若題目為多選題，需列出所有正確選項
+- 若題目描述不足或有歧義，請以「最符合一般考試標準解釋」進行判斷
+- 各選項說明請保持簡短、精準、可比較
+- 不要加入與題目無關的延伸知識`;
+
+/**
+ * 使用 AI 分析當前題目
+ */
+async function analyzeWithAI() {
+    // 檢查 API Key
+    if (!groqApiKey) {
+        const savedKey = localStorage.getItem('groq_api_key');
+        if (savedKey) {
+            groqApiKey = savedKey;
+        } else {
+            alert('請先在設定中配置 GROQ API Key');
+            openSettingsDialog();
+            return;
+        }
+    }
+
+    // 載入已儲存的模型和自訂提示詞
+    const savedModel = localStorage.getItem('groq_model');
+    const savedPrompt = localStorage.getItem('groq_custom_prompt');
+    if (savedModel) {
+        groqModel = savedModel;
+    }
+
+    // 決定使用的提示詞
+    let systemPrompt = AI_SYSTEM_PROMPT;
+    if (savedPrompt && savedPrompt.trim() && savedPrompt.trim() !== '請使用系統原生提示詞') {
+        systemPrompt = savedPrompt.trim();
+    }
+
+    // 取得當前題目
+    const q = questions[currentIndex];
+    if (!q) return;
+
+    // 顯示區塊並設定載入狀態
+    const section = document.getElementById('aiAnalysisSection');
+    const loading = document.getElementById('aiAnalysisLoading');
+    const content = document.getElementById('aiAnalysisContent');
+    const error = document.getElementById('aiAnalysisError');
+
+    section.classList.remove('hidden');
+    loading.classList.remove('hidden');
+    content.classList.add('hidden');
+    error.classList.add('hidden');
+
+    // 滾動到 AI 解析區塊
+    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // 組合題目內容
+    const optionsText = q.options.map(opt => `${opt.letter}. ${opt.text}`).join('\n');
+    const userPrompt = `題目類型：${q.type}
+
+題目：
+${q.englishText}
+
+${q.chineseText ? `中文翻譯：\n${q.chineseText}\n` : ''}
+選項：
+${optionsText}`;
+
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${groqApiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: groqModel,
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userPrompt }
+                ],
+                temperature: 0.3,
+                max_tokens: 2048
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || `API 請求失敗 (${response.status})`);
+        }
+
+        const data = await response.json();
+        const result = data.choices[0]?.message?.content || '無法取得回應';
+
+        // 顯示結果
+        loading.classList.add('hidden');
+        content.classList.remove('hidden');
+        content.innerHTML = formatAiResponse(result);
+
+    } catch (err) {
+        console.error('AI 分析錯誤:', err);
+        loading.classList.add('hidden');
+        error.classList.remove('hidden');
+        document.getElementById('aiAnalysisErrorMsg').textContent = err.message;
+    }
+}
+
+/**
+ * 隱藏 AI 解析區塊
+ */
+function hideAiAnalysis() {
+    document.getElementById('aiAnalysisSection').classList.add('hidden');
+}
+
+/**
+ * 格式化 AI 回應（簡易 Markdown 轉 HTML）
+ */
+function formatAiResponse(text) {
+    // 移除開頭的分隔線
+    let processed = text.replace(/^-{3,}\s*\n?/gm, '').trim();
+
+    // 先轉義 HTML
+    processed = processed
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    // 按行處理
+    const lines = processed.split('\n');
+    const result = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+
+        // 跳過空行和分隔線
+        if (!line || /^-{3,}$/.test(line)) {
+            if (line && result.length > 0) {
+                result.push('<div class="h-2"></div>');
+            }
+            continue;
+        }
+
+        // 正確答案（優先匹配）
+        if (/^正確答案[：:]/.test(line)) {
+            const match = line.match(/正確答案[：:]\s*(.+)/);
+            if (match) {
+                result.push(`<div class="bg-green-500/10 border-l-4 border-green-500 px-4 py-3 rounded-r-lg mb-4"><div class="text-lg font-bold text-green-400 mb-1">✓ 正確答案</div><div class="text-2xl font-bold text-green-300 tracking-wider">${match[1]}</div></div>`);
+            }
+            continue;
+        }
+
+        // 段落標題
+        if (/^(解析|題目條件關鍵|各選項比較|結論)[：:]/.test(line)) {
+            const match = line.match(/^(解析|題目條件關鍵|各選項比較|結論)[：:]/);
+            if (match) {
+                result.push(`<div class="mt-6 mb-3 first:mt-0"><h4 class="text-lg font-bold text-blue-400 flex items-center gap-2"><span class="w-1 h-5 bg-blue-400 rounded"></span>${match[1]}</h4></div>`);
+            }
+            continue;
+        }
+
+        // 選項行（帶 ✅ 或 ❌）
+        const optionMatch = line.match(/^([A-F])\.\s+(.+?)(✅|❌)$/);
+        if (optionMatch) {
+            const [, letter, content, emoji] = optionMatch;
+            const isCorrect = emoji === '✅';
+            const bgClass = isCorrect ? 'bg-green-500/10 border-green-500/30' : 'bg-slate-800/50 border-slate-700/50';
+            const textClass = isCorrect ? 'text-green-300' : 'text-gray-400';
+            const letterClass = isCorrect ? 'text-green-400' : 'text-slate-500';
+            result.push(`<div class="ml-4 my-2.5 p-3 rounded-lg border ${bgClass} flex items-start gap-3"><span class="font-bold ${letterClass} text-lg shrink-0">${letter}.</span><span class="flex-1 ${textClass} leading-relaxed">${content}</span><span class="text-xl shrink-0">${emoji}</span></div>`);
+            continue;
+        }
+
+        // 列表項
+        const listMatch = line.match(/^(\d+)\.\s+(.+)$/);
+        if (listMatch) {
+            result.push(`<div class="ml-6 my-2 flex items-start gap-2"><span class="text-blue-400 font-semibold shrink-0">${listMatch[1]}.</span><span class="text-gray-300 leading-relaxed">${listMatch[2]}</span></div>`);
+            continue;
+        }
+
+        // 一般文字（處理粗體）
+        let formattedLine = line.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
+
+        // 如果前一行不是特殊格式，添加適當的間距和樣式
+        if (result.length > 0 && !result[result.length - 1].includes('class="mt-6') && !result[result.length - 1].includes('class="bg-')) {
+            formattedLine = `<div class="mb-2.5 text-gray-300 leading-relaxed text-base">${formattedLine}</div>`;
+        } else {
+            formattedLine = `<div class="text-gray-300 leading-relaxed text-base">${formattedLine}</div>`;
+        }
+
+        result.push(formattedLine);
+    }
+
+    return result.join('');
+}
