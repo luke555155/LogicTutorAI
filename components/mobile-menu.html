@@ -1,0 +1,69 @@
+        <div id="mobileMenuPanel" class="mobile-menu-panel">
+            <button onclick="closeMobileMenu()" class="close-btn">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            <div class="menu-content">
+                <h2 class="text-xl font-bold text-white mb-6 px-2">選單</h2>
+
+                <!-- 載入題庫 -->
+                <label class="menu-item cursor-pointer">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    <span>載入題庫</span>
+                    <input type="file" accept=".md" class="hidden" onchange="loadFileFromInput(event); closeMobileMenu();">
+                </label>
+
+                <!-- 重新載入 -->
+                <button onclick="reloadQuestions(); closeMobileMenu();" class="menu-item w-full text-left">
+                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span>重新載入題庫</span>
+                </button>
+
+                <!-- AI 設定 -->
+                <button onclick="openSettingsDialog(); closeMobileMenu();" class="menu-item w-full text-left">
+                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    <span>AI 設定 (GROQ)</span>
+                </button>
+
+                <!-- 進階設定 -->
+                <button onclick="openAdvancedSettingsDialog(); closeMobileMenu();" class="menu-item w-full text-left">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                    </svg>
+                    <span>進階設定</span>
+                </button>
+
+                <!-- 下載範本 -->
+                <a href="sampleMd/sample.md" download class="menu-item" onclick="closeMobileMenu();">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span>下載 MD 格式範本</span>
+                </a>
+
+                <div class="h-px bg-slate-700 my-4"></div>
+
+                <!-- 查看答題統計 -->
+                <button onclick="toggleStatsPanel(); closeMobileMenu();" class="menu-item w-full text-left">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>查看答題統計</span>
+                </button>
+
+                <!-- 重設進度 -->
+                <button onclick="resetProgress(); closeMobileMenu();" class="menu-item w-full text-left">
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    <span>重設答題進度</span>
+                </button>
+            </div>
+        </div>

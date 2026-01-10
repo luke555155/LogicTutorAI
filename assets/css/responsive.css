@@ -1,0 +1,453 @@
+/* ========================================
+   LogicTutorAI - 響應式設計（RWD）
+   ========================================*/
+
+/* ========================================
+   手機版 Header
+   ======================================== */
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+    .desktop-nav {
+        display: none !important;
+    }
+}
+@media (min-width: 769px) {
+    .mobile-menu-btn {
+        display: none !important;
+    }
+    .mobile-menu-panel {
+        display: none !important;
+    }
+}
+
+/* ========================================
+   手機選單面板
+   ======================================== */
+
+.mobile-menu-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.98);
+    z-index: 9999;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+.mobile-menu-panel.open {
+    transform: translateX(0);
+}
+.mobile-menu-panel .menu-content {
+    padding: 1rem;
+    padding-top: 4rem;
+    height: 100%;
+    overflow-y: auto;
+}
+.mobile-menu-panel .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    background: rgba(51, 65, 85, 0.5);
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #e2e8f0;
+    transition: all 0.2s;
+}
+.mobile-menu-panel .menu-item:active {
+    background: rgba(59, 130, 246, 0.3);
+    transform: scale(0.98);
+}
+.mobile-menu-panel .close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+/* ========================================
+   響應式導航列
+   ======================================== */
+
+@media (max-width: 640px) {
+    .nav-btn-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .nav-btn-group button {
+        width: 100%;
+        justify-content: center;
+    }
+    .jump-input-group {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ========================================
+   題目頭部按鈕響應式
+   ======================================== */
+
+@media (max-width: 640px) {
+    .question-header-wrapper {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch !important;
+    }
+    .question-header-left {
+        justify-content: center;
+    }
+    .question-header-right {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+    .question-header-right button {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.8rem;
+        padding: 0.625rem 0.75rem;
+    }
+    .question-header-right button span {
+        display: none;
+    }
+    .question-header-right button svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+}
+@media (max-width: 400px) {
+    .question-header-right {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+/* ========================================
+   選項按鈕手機優化
+   ======================================== */
+
+@media (max-width: 640px) {
+    .option-btn {
+        padding: 1rem !important;
+        font-size: 0.95rem !important;
+    }
+    .option-btn:hover:not(.answered) {
+        transform: none;
+    }
+    .option-btn:active:not(.answered) {
+        transform: scale(0.98);
+        background: rgba(59, 130, 246, 0.15);
+    }
+}
+
+/* ========================================
+   統計卡片手機優化
+   ======================================== */
+
+@media (max-width: 1024px) {
+    .stats-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+        background: rgba(30, 41, 59, 0.98);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(71, 85, 105, 0.5);
+        border-radius: 20px 20px 0 0;
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    .stats-panel.open {
+        max-height: 80vh;
+        padding: 1.25rem;
+        padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+    }
+    .stats-toggle-btn {
+        display: flex !important;
+    }
+}
+@media (min-width: 1025px) {
+    .stats-toggle-btn {
+        display: none !important;
+    }
+}
+
+/* ========================================
+   統計面板切換按鈕
+   ======================================== */
+
+.stats-toggle-btn {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 45;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+    transition: all 0.2s;
+}
+.stats-toggle-btn:active {
+    transform: scale(0.95);
+}
+.stats-toggle-btn.open {
+    background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* ========================================
+   答題卡手機優化
+   ======================================== */
+
+@media (max-width: 640px) {
+    .answer-card-grid {
+        gap: 4px !important;
+    }
+    .answer-card-item {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 0.65rem !important;
+    }
+}
+
+/* ========================================
+   浮動解析視窗手機優化 - 全螢幕模式
+   ======================================== */
+
+@media (max-width: 768px) {
+    .floating-panel {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        min-width: unset !important;
+        border-radius: 0 !important;
+        resize: none !important;
+        background: #0f172a !important;
+        box-shadow: none !important;
+    }
+    .floating-panel-header {
+        cursor: default;
+        padding: 1rem;
+        padding-top: calc(1rem + env(safe-area-inset-top));
+        background: #1e293b !important;
+        border-bottom: 1px solid #334155 !important;
+    }
+    .floating-panel-body {
+        padding: 1rem;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+        background: #0f172a !important;
+    }
+    /* 手機版關閉按鈕加大 */
+    .floating-panel .close-btn-mobile {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+    }
+}
+
+/* ========================================
+   Dialog 手機優化
+   ======================================== */
+
+@media (max-width: 640px) {
+    .dialog-content {
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+    }
+    .dialog-padding {
+        padding: 0 !important;
+    }
+    .settings-dialog-content {
+        max-height: 100vh !important;
+        overflow-y: auto !important;
+    }
+}
+
+/* ========================================
+   圖片 Dialog 手機優化
+   ======================================== */
+
+@media (max-width: 768px) {
+    .image-dialog-wrapper {
+        padding: 0 !important;
+    }
+    .image-dialog-content {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+    }
+    .image-container {
+        min-height: 60vh !important;
+        max-height: calc(100vh - 120px) !important;
+    }
+}
+
+/* ========================================
+   跳題輸入框手機優化
+   ======================================== */
+
+@media (max-width: 480px) {
+    .jump-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .jump-controls input {
+        width: 60px !important;
+    }
+    .jump-controls span {
+        display: none;
+    }
+}
+
+/* ========================================
+   觸控友善的按鈕尺寸
+   ======================================== */
+
+@media (max-width: 768px) {
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* ========================================
+   安全區域適配 (iPhone X+ 瀏海和底部)
+   ======================================== */
+
+@supports (padding-top: env(safe-area-inset-top)) {
+    .safe-area-top {
+        padding-top: env(safe-area-inset-top);
+    }
+    .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* ========================================
+   手機版主要內容區域調整
+   ======================================== */
+
+@media (max-width: 1024px) {
+    .main-content-area {
+        padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
+    }
+}
+
+/* ========================================
+   禁止手機上的文字選取
+   ======================================== */
+
+@media (max-width: 768px) {
+    .no-select {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+}
+
+/* ========================================
+   滾動行為優化
+   ======================================== */
+
+@media (min-width: 769px) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+/* ========================================
+   手機上隱藏捲軸但保留功能
+   ======================================== */
+
+@media (max-width: 768px) {
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* ========================================
+   底部導航欄樣式
+   ======================================== */
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(71, 85, 105, 0.5);
+    padding: 0.5rem 1rem;
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    display: none;
+}
+@media (max-width: 640px) {
+    .bottom-nav {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+    .main-content-area {
+        padding-bottom: calc(180px + env(safe-area-inset-bottom)) !important;
+    }
+}
+.bottom-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.bottom-nav-btn:active {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    transform: scale(0.95);
+}
+.bottom-nav-btn svg {
+    width: 24px;
+    height: 24px;
+}

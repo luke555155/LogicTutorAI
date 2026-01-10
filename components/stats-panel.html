@@ -1,0 +1,77 @@
+                <!-- 右側：答題卡與統計 - 手機版變成可切換的底部面板 -->
+                <div id="statsPanel" class="stats-panel space-y-4 lg:space-y-4">
+                    <!-- 手機版面板標題 -->
+                    <div class="lg:hidden flex items-center justify-between mb-2">
+                        <h2 class="text-lg font-bold text-white">答題狀態</h2>
+                        <button onclick="toggleStatsPanel()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-700 hover:bg-slate-600 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- 統計卡片 -->
+                    <div class="bg-slate-800/50 lg:backdrop-blur rounded-2xl lg:border lg:border-slate-700 p-4 lg:p-5">
+                        <h3 class="text-base lg:text-lg font-bold text-white mb-3 lg:mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            答題統計
+                        </h3>
+                        <!-- 手機版橫向統計 / 桌面版縱向統計 -->
+                        <div class="flex lg:flex-col gap-4 lg:gap-0 lg:space-y-3">
+                            <div class="flex-1 lg:flex-none flex flex-col lg:flex-row items-center lg:items-center lg:justify-between text-center lg:text-left">
+                                <span class="text-slate-400 text-xs lg:text-base mb-1 lg:mb-0">答對</span>
+                                <span id="correctCount" class="text-xl lg:text-2xl font-bold text-green-400">0</span>
+                            </div>
+                            <div class="flex-1 lg:flex-none flex flex-col lg:flex-row items-center lg:items-center lg:justify-between text-center lg:text-left">
+                                <span class="text-slate-400 text-xs lg:text-base mb-1 lg:mb-0">答錯</span>
+                                <span id="wrongCount" class="text-xl lg:text-2xl font-bold text-red-400">0</span>
+                            </div>
+                            <div class="hidden lg:block h-px bg-slate-700 my-2"></div>
+                            <div class="flex-1 lg:flex-none flex flex-col lg:flex-row items-center lg:items-center lg:justify-between text-center lg:text-left">
+                                <span class="text-slate-400 text-xs lg:text-base mb-1 lg:mb-0">正確率</span>
+                                <span id="accuracy" class="text-xl lg:text-2xl font-bold text-blue-400">0%</span>
+                            </div>
+                        </div>
+                        <!-- 進度條 -->
+                        <div class="mt-3 lg:mt-3">
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div id="progressBar" class="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <p id="progressText" class="text-xs text-slate-500 mt-1 text-center">已作答 0 / 0 題</p>
+                        </div>
+                        <!-- 重設按鈕 -->
+                        <button onclick="resetProgress()" class="w-full mt-3 lg:mt-4 bg-slate-700 hover:bg-slate-600 active:bg-slate-500 py-2 rounded-lg text-sm font-medium transition touch-target no-select">
+                            重設進度
+                        </button>
+                    </div>
+
+                    <!-- 答題卡 -->
+                    <div class="bg-slate-800/50 lg:backdrop-blur rounded-2xl lg:border lg:border-slate-700 p-4 lg:p-5">
+                        <h3 class="text-base lg:text-lg font-bold text-white mb-3 lg:mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            答題卡
+                        </h3>
+                        <div id="answerCard" class="answer-card-grid flex flex-wrap max-h-48 lg:max-h-80 overflow-y-auto overflow-x-hidden pr-1 hide-scrollbar" style="gap: 3px;">
+                            <!-- 動態生成題號格子 -->
+                        </div>
+                        <!-- 圖例 -->
+                        <div class="mt-3 lg:mt-4 flex items-center justify-center gap-3 lg:gap-4 text-xs text-slate-400">
+                            <div class="flex items-center gap-1">
+                                <div class="w-3 h-3 bg-green-500 rounded"></div>
+                                <span>正確</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <div class="w-3 h-3 bg-red-500 rounded"></div>
+                                <span>錯誤</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <div class="w-3 h-3 bg-slate-600 rounded"></div>
+                                <span>未作答</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
