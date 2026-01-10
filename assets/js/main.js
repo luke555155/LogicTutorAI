@@ -327,9 +327,9 @@ function renderQuestion() {
     const imageContainer = document.getElementById('questionImage');
     imageContainer.classList.add('hidden');
 
-    // 顯示題目文字
+    // 顯示題目文字（支援反引號關鍵字高亮）
     const questionText = showChinese ? q.chineseText : q.englishText;
-    document.getElementById('questionText').innerHTML = escapeHtml(questionText);
+    document.getElementById('questionText').innerHTML = highlightKeywords(questionText);
 
     // 更新翻譯按鈕狀態
     document.getElementById('translateBtnText').textContent = showChinese ? '顯示英文原文' : '顯示中文翻譯';
@@ -431,18 +431,20 @@ function renderOptions(question) {
             }
         }
 
-        // 選項文字
+        // 選項文字（支援反引號關鍵字高亮）
         const textSpan = document.createElement('span');
         textSpan.className = 'flex-1';
         // 解析選項中的中英文
         if (showChinese) {
             // 嘗試提取中文部分（括號內）
             const chineseMatch = opt.text.match(/（(.+?)）/);
-            textSpan.textContent = chineseMatch ? `${opt.letter}. ${chineseMatch[1]}` : `${opt.letter}. ${opt.text}`;
+            const displayText = chineseMatch ? `${opt.letter}. ${chineseMatch[1]}` : `${opt.letter}. ${opt.text}`;
+            textSpan.innerHTML = highlightKeywords(displayText);
         } else {
             // 只顯示英文部分
             const englishText = opt.text.replace(/（.+?）/, '').trim();
-            textSpan.textContent = `${opt.letter}. ${englishText}`;
+            const displayText = `${opt.letter}. ${englishText}`;
+            textSpan.innerHTML = highlightKeywords(displayText);
         }
         div.appendChild(textSpan);
 
@@ -768,10 +770,28 @@ function resetProgress() {
 }
 
 // ==================== 工具函式 ====================
+/**
+ * HTML 轉義
+ */
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+/**
+ * 處理 Markdown 反引號關鍵字高亮
+ * 將 `關鍵字` 轉換為紅色顯示
+ * @param {string} text - 原始文字
+ * @returns {string} 處理後的 HTML
+ */
+function highlightKeywords(text) {
+    // 先轉義 HTML 特殊字元
+    const escaped = escapeHtml(text);
+
+    // 將反引號包裹的文字轉換為紅色 span
+    // 支援多個關鍵字：`keyword1` 和 `keyword2` 等
+    return escaped.replace(/`([^`]+)`/g, '<span class="text-red-400 font-semibold">$1</span>');
 }
 
 // ==================== 解析面板控制（懸浮視窗） ====================

@@ -169,3 +169,45 @@ Review the two exhibits below. Based on the network diagram and log output, whic
 
 ---
 
+## 第 7 題 【單選題】
+
+**English:**
+Which of the following can be used to `identify` potential `attacker` activities without affecting `production servers`?
+
+**中文：**
+下列哪一項可以用來`識別`潛在的`攻擊者`活動，而不會影響`生產伺服器`？
+
+**選項：**
+- A. `Honeypot`（蜜罐）
+- B. `Firewall`（防火牆）
+- C. Antivirus（防毒軟體）
+- D. Load Balancer（負載平衡器）
+
+**正確答案：A**
+
+**題目解析：**
+🎯 **關鍵字高亮功能說明**
+
+此題展示了系統的**關鍵字高亮**功能。在 Markdown 題庫中，您可以使用反引號（\`）包裹重要的關鍵字，系統會自動以紅色粗體顯示這些關鍵字。
+
+📚 **使用方法**
+```markdown
+**English:**
+Which can be used to `identify` potential `attacker` activities?
+
+**選項：**
+- A. `Honeypot`（蜜罐）
+```
+
+💡 **功能特點**
+- ✅ 支援題目文字中的關鍵字標記
+- ✅ 支援選項文字中的關鍵字標記
+- ✅ 支援中英文題目
+- ✅ 可在同一題目中標記多個關鍵字
+- ✅ 自動以紅色粗體呈現，增強視覺效果
+
+🎨 **視覺效果**
+被反引號包裹的文字會以 <span style="color: #f87171; font-weight: 600;">紅色粗體</span> 顯示，幫助您快速識別題目中的關鍵概念。
+
+---
+
