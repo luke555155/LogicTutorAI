@@ -17,6 +17,7 @@ let answerState = {};         // 答題狀態 { questionNum: 'correct' | 'wrong'
 let selectedOptions = [];     // 多選題已選選項
 let hasAnswered = false;      // 當前題目是否已作答
 let randomJumpEnabled = false; // 隨機跳題功能
+let keywordHighlightEnabled = true; // 關鍵字高亮功能（預設啟用）
 
 // 閱讀範圍設定
 let rangeEnabled = false;     // 是否啟用範圍限制
@@ -812,6 +813,11 @@ function highlightKeywords(text) {
     // 先轉義 HTML 特殊字元
     const escaped = escapeHtml(text);
 
+    // 如果關鍵字高亮功能已停用，只移除反引號但不套用樣式
+    if (!keywordHighlightEnabled) {
+        return escaped.replace(/`([^`]+)`/g, '$1');
+    }
+
     // 將反引號包裹的文字轉換為紅色 span
     // 支援多個關鍵字：`keyword1` 和 `keyword2` 等
     return escaped.replace(/`([^`]+)`/g, '<span class="text-red-400 font-semibold">$1</span>');
@@ -1191,6 +1197,7 @@ function openAdvancedSettingsDialog() {
     // 載入已保存的設定
     document.getElementById('rangeEnabledCheckbox').checked = rangeEnabled;
     document.getElementById('randomJumpCheckbox').checked = randomJumpEnabled;
+    document.getElementById('keywordHighlightCheckbox').checked = keywordHighlightEnabled;
 
     if (rangeEnabled) {
         document.getElementById('rangeInputContainer').classList.remove('hidden');
@@ -1239,6 +1246,16 @@ function toggleRandomJump() {
     }
 
     localStorage.setItem('random_jump_enabled', randomJumpEnabled);
+}
+
+function toggleKeywordHighlight() {
+    keywordHighlightEnabled = document.getElementById('keywordHighlightCheckbox').checked;
+    localStorage.setItem('keyword_highlight_enabled', keywordHighlightEnabled);
+
+    // 重新渲染題目以套用新的設定
+    if (questions.length > 0) {
+        renderQuestion();
+    }
 }
 
 function updateRangeSettings() {
@@ -1376,6 +1393,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // 載入已儲存的進階設定
     const savedRandomJump = localStorage.getItem('random_jump_enabled');
     randomJumpEnabled = savedRandomJump === 'true';
+
+    // 載入關鍵字高亮設定（預設為啟用）
+    const savedKeywordHighlight = localStorage.getItem('keyword_highlight_enabled');
+    keywordHighlightEnabled = savedKeywordHighlight !== 'false'; // 預設 true，只有明確設為 false 才停用
 
     // 載入閱讀範圍設定
     const savedRangeEnabled = localStorage.getItem('range_enabled');
