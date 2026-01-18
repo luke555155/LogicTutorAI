@@ -347,9 +347,23 @@ function renderQuestion() {
         viewImageBtn.classList.remove('flex');
     }
 
-    // 隱藏內嵌圖片區域（改用 Dialog 顯示）
+    // 顯示內嵌圖片區域（題目下方直接顯示）
     const imageContainer = document.getElementById('questionImage');
-    imageContainer.classList.add('hidden');
+    if (q.imagePaths && q.imagePaths.length > 0) {
+        imageContainer.classList.remove('hidden');
+        imageContainer.innerHTML = q.imagePaths.map((path, index) => `
+            <div class="flex flex-col items-center">
+                ${q.imagePaths.length > 1 ? `<p class="text-sm text-slate-400 mb-2">圖片 ${index + 1} / ${q.imagePaths.length}</p>` : ''}
+                <img src="${path}" alt="題目圖片 ${index + 1}"
+                     class="max-w-full rounded-lg border border-slate-600 shadow-lg cursor-pointer hover:border-blue-500 transition-colors"
+                     onclick="openImageDialog()"
+                     title="點擊放大查看">
+            </div>
+        `).join('');
+    } else {
+        imageContainer.classList.add('hidden');
+        imageContainer.innerHTML = '';
+    }
 
     // 顯示題目文字（支援反引號關鍵字高亮）
     const questionText = showChinese ? q.chineseText : q.englishText;
