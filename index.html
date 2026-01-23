@@ -643,6 +643,20 @@
                                     <span class="text-sm text-slate-400 group-hover:text-white transition">啟用範圍限制</span>
                                 </label>
                             </div>
+                            <div class="flex items-center gap-3 mt-2">
+                                <label class="flex items-center gap-3 cursor-pointer group touch-target flex-1">
+                                    <input type="checkbox" id="showImportantOnlyCheckbox" class="checkbox-custom" onchange="toggleShowImportantOnly()">
+                                    <span class="text-sm text-slate-400 group-hover:text-white transition">僅顯示重要題目</span>
+                                </label>
+                            </div>
+                            <div id="showImportantOnlyInfo" class="hidden mt-2 bg-slate-800/50 rounded-lg p-3 border border-red-500/30">
+                                <p class="text-xs text-slate-400 flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                                    </svg>
+                                    <span id="importantOnlyInfoText">僅顯示標記為重要的題目（題號前有 * 號）</span>
+                                </p>
+                            </div>
                             <div id="rangeInputContainer" class="hidden">
                                 <div class="flex items-center gap-2 mt-3">
                                     <div class="flex-1">

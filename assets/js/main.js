@@ -23,6 +23,7 @@ let keywordHighlightEnabled = true; // 關鍵字高亮功能（預設啟用）
 let rangeEnabled = false;     // 是否啟用範圍限制
 let rangeStart = 1;           // 起始題號
 let rangeEnd = null;          // 結束題號（null 表示到最後一題）
+let showImportantOnly = false; // 是否僅顯示重要題目
 
 // GROQ AI 設定
 let groqApiKey = '';          // GROQ API Key
@@ -653,37 +654,67 @@ function isInValidRange(index) {
 }
 
 /**
+ * 取得有效的題目索引列表（考慮閱讀範圍和僅顯示重要題目設定）
+ */
+function getValidIndices() {
+    if (questions.length === 0) return [];
+
+    const range = getValidRange();
+    const indices = [];
+
+    for (let i = range.startIdx; i <= range.endIdx; i++) {
+        const q = questions[i];
+        // 如果啟用僅顯示重要題目，則只加入重要題目
+        if (showImportantOnly && !q.isImportant) {
+            continue;
+        }
+        indices.push(i);
+    }
+
+    return indices;
+}
+
+/**
+ * 檢查索引是否在有效索引列表中
+ */
+function isValidIndex(index) {
+    if (!showImportantOnly) {
+        return isInValidRange(index);
+    }
+    return getValidIndices().includes(index);
+}
+
+/**
  * 上一題
  */
 function prevQuestion() {
-    const range = getValidRange();
+    const validIndices = getValidIndices();
+    if (validIndices.length === 0) return;
 
-    // 如果當前不在範圍內，跳到範圍的最後一題
-    if (!isInValidRange(currentIndex)) {
-        currentIndex = range.endIdx;
-        renderQuestion();
-        return;
-    }
+    // 找到當前索引在有效索引列表中的位置
+    const currentPos = validIndices.indexOf(currentIndex);
 
-    // 在範圍內向前跳
-    if (currentIndex > range.startIdx) {
-        currentIndex--;
-        renderQuestion();
+    if (currentPos === -1) {
+        // 當前不在有效範圍內，跳到最後一個有效題目
+        currentIndex = validIndices[validIndices.length - 1];
+    } else if (currentPos > 0) {
+        // 跳到前一個有效題目
+        currentIndex = validIndices[currentPos - 1];
     }
+    // 如果已經是第一題，不做任何動作
+
+    renderQuestion();
 }
 
 /**
  * 下一題
  */
 function nextQuestion() {
-    const range = getValidRange();
+    const validIndices = getValidIndices();
+    if (validIndices.length === 0) return;
 
-    // 如果當前不在範圍內，跳到範圍的第一題
-    if (!isInValidRange(currentIndex)) {
-        currentIndex = range.startIdx;
-        renderQuestion();
-        return;
-    }
+    // 找到當前索引在有效索引列表中的位置
+    const currentPos = validIndices.indexOf(currentIndex);
 
     // 如果啟用隨機跳題
     if (randomJumpEnabled) {
@@ -696,21 +727,26 @@ function nextQuestion() {
         return;
     }
 
-    // 一般順序跳題（在範圍內）
-    if (currentIndex < range.endIdx) {
-        currentIndex++;
-        renderQuestion();
+    if (currentPos === -1) {
+        // 當前不在有效範圍內，跳到第一個有效題目
+        currentIndex = validIndices[0];
+    } else if (currentPos < validIndices.length - 1) {
+        // 跳到下一個有效題目
+        currentIndex = validIndices[currentPos + 1];
     }
+    // 如果已經是最後一題，不做任何動作
+
+    renderQuestion();
 }
 
 /**
  * 隨機跳題 - 獲取下一個未作答題目的索引
  */
 function getRandomNextIndex() {
-    const range = getValidRange();
+    const validIndices = getValidIndices();
     const unanswered = [];
 
-    for (let i = range.startIdx; i <= range.endIdx; i++) {
+    for (const i of validIndices) {
         const q = questions[i];
         if (!answerState[q.number]) {
             unanswered.push(i);
@@ -731,12 +767,21 @@ function jumpToQuestion() {
     // 尋找對應題號的索引
     const index = questions.findIndex(q => q.number === num);
     if (index !== -1) {
+        const q = questions[index];
+
         // 檢查是否在範圍內
         if (rangeEnabled && !isInValidRange(index)) {
             const range = getValidRange();
             alert(`題目 ${num} 不在設定的閱讀範圍內（第 ${range.startNum} ~ ${range.endNum} 題）`);
             return;
         }
+
+        // 檢查是否為重要題目（如果啟用僅顯示重要題目）
+        if (showImportantOnly && !q.isImportant) {
+            alert(`題目 ${num} 不是重要題目，目前僅顯示重要題目`);
+            return;
+        }
+
         currentIndex = index;
         renderQuestion();
     } else {
@@ -1223,6 +1268,7 @@ function openAdvancedSettingsDialog() {
 
     // 載入已保存的設定
     document.getElementById('rangeEnabledCheckbox').checked = rangeEnabled;
+    document.getElementById('showImportantOnlyCheckbox').checked = showImportantOnly;
     document.getElementById('randomJumpCheckbox').checked = randomJumpEnabled;
     document.getElementById('keywordHighlightCheckbox').checked = keywordHighlightEnabled;
 
@@ -1231,6 +1277,11 @@ function openAdvancedSettingsDialog() {
         document.getElementById('rangeStartInput').value = rangeStart;
         document.getElementById('rangeEndInput').value = rangeEnd || '';
         updateRangeInfo();
+    }
+
+    if (showImportantOnly) {
+        document.getElementById('showImportantOnlyInfo').classList.remove('hidden');
+        updateImportantOnlyInfo();
     }
 
     if (randomJumpEnabled) {
@@ -1260,6 +1311,11 @@ function toggleRangeEnabled() {
 
     localStorage.setItem('range_enabled', rangeEnabled);
     updateJumpInputMax();
+
+    // 如果僅顯示重要題目已啟用，更新其信息
+    if (showImportantOnly) {
+        updateImportantOnlyInfo();
+    }
 }
 
 function toggleRandomJump() {
@@ -1285,6 +1341,48 @@ function toggleKeywordHighlight() {
     }
 }
 
+function toggleShowImportantOnly() {
+    showImportantOnly = document.getElementById('showImportantOnlyCheckbox').checked;
+    const info = document.getElementById('showImportantOnlyInfo');
+
+    if (showImportantOnly) {
+        info.classList.remove('hidden');
+        // 更新信息顯示
+        updateImportantOnlyInfo();
+    } else {
+        info.classList.add('hidden');
+    }
+
+    localStorage.setItem('show_important_only', showImportantOnly);
+
+    // 如果當前題目不在有效範圍內，跳到第一個有效題目
+    if (questions.length > 0) {
+        const validIndices = getValidIndices();
+        if (validIndices.length > 0 && !validIndices.includes(currentIndex)) {
+            currentIndex = validIndices[0];
+            renderQuestion();
+        }
+    }
+}
+
+/**
+ * 更新僅顯示重要題目的信息文字
+ */
+function updateImportantOnlyInfo() {
+    const infoText = document.getElementById('importantOnlyInfoText');
+    if (!infoText || questions.length === 0) return;
+
+    const validIndices = getValidIndices();
+    const importantCount = validIndices.length;
+
+    if (rangeEnabled) {
+        const range = getValidRange();
+        infoText.textContent = `範圍內共 ${importantCount} 題重要題目（第 ${range.startNum} ~ ${range.endNum} 題）`;
+    } else {
+        infoText.textContent = `共 ${importantCount} 題重要題目`;
+    }
+}
+
 function updateRangeSettings() {
     const startInput = document.getElementById('rangeStartInput');
     const endInput = document.getElementById('rangeEndInput');
@@ -1297,6 +1395,11 @@ function updateRangeSettings() {
 
     updateRangeInfo();
     updateJumpInputMax();
+
+    // 如果僅顯示重要題目已啟用，更新其信息
+    if (showImportantOnly) {
+        updateImportantOnlyInfo();
+    }
 }
 
 function updateRangeInfo() {
@@ -1432,6 +1535,10 @@ document.addEventListener('DOMContentLoaded', () => {
     rangeEnabled = savedRangeEnabled === 'true';
     rangeStart = savedRangeStart ? parseInt(savedRangeStart) : 1;
     rangeEnd = savedRangeEnd ? parseInt(savedRangeEnd) : null;
+
+    // 載入僅顯示重要題目設定
+    const savedShowImportantOnly = localStorage.getItem('show_important_only');
+    showImportantOnly = savedShowImportantOnly === 'true';
 
     // 初始化懸浮解析視窗拖曳功能
     initExplanationPanelDrag();
