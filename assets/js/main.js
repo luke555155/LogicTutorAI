@@ -41,12 +41,13 @@ function parseQuestions(markdown) {
     const blocks = markdown.split(/---/).filter(block => block.trim());
 
     for (const block of blocks) {
-        // 解析題號與題型
-        const headerMatch = block.match(/##\s*第\s*(\d+)\s*題\s*【(單選題|多選題)】/);
+        // 解析題號與題型（支援 ## *第 XXX 題 格式，星號表示重要題目）
+        const headerMatch = block.match(/##\s*(\*)?\s*第\s*(\d+)\s*題\s*【(單選題|多選題)】/);
         if (!headerMatch) continue;
 
-        const questionNum = parseInt(headerMatch[1]);
-        const questionType = headerMatch[2];
+        const isImportant = headerMatch[1] === '*';
+        const questionNum = parseInt(headerMatch[2]);
+        const questionType = headerMatch[3];
         const isMultiple = questionType === '多選題';
 
         // 解析英文題目
@@ -79,9 +80,10 @@ function parseQuestions(markdown) {
             return null;
         }).filter(opt => opt !== null);
 
-        // 解析正確答案
-        const answerMatch = block.match(/\*\*正確答案：([A-F]+)\*\*/);
-        const correctAnswer = answerMatch ? answerMatch[1] : '';
+        // 解析正確答案（支援連續格式 AB 或逗號分隔格式 A,B）
+        const answerMatch = block.match(/\*\*正確答案：([A-F,]+)\*\*/);
+        // 移除逗號，統一為連續字母格式（例如 A,B -> AB）
+        const correctAnswer = answerMatch ? answerMatch[1].replace(/,/g, '') : '';
 
         // 解析題目解析（可選欄位）
         const explanationMatch = block.match(/\*\*題目解析\*\*\s*([\s\S]*?)(?=$)/);
@@ -91,6 +93,7 @@ function parseQuestions(markdown) {
             number: questionNum,
             type: questionType,
             isMultiple,
+            isImportant,
             englishText,
             chineseText,
             imagePaths,
@@ -307,12 +310,22 @@ function renderQuestion() {
 
     // 顯示/隱藏解析提示按鈕（只有有解析的題目才顯示）
     const explanationBtn = document.getElementById('explanationBtn');
+    const importantBadge = document.getElementById('importantBadge');
     if (q.explanation) {
         explanationBtn.classList.remove('hidden');
         explanationBtn.classList.add('flex');
     } else {
         explanationBtn.classList.add('hidden');
         explanationBtn.classList.remove('flex');
+    }
+
+    // 顯示/隱藏重要標籤（題目標題有星號時顯示）
+    if (importantBadge) {
+        if (q.isImportant) {
+            importantBadge.classList.remove('hidden');
+        } else {
+            importantBadge.classList.add('hidden');
+        }
     }
 
     // 更新題號
