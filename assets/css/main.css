@@ -269,6 +269,137 @@ body {
 }
 
 /* ========================================
+   簡答題答案區塊樣式
+   ======================================== */
+
+#shortAnswerContent {
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+#shortAnswerContent h1,
+#shortAnswerContent h2,
+#shortAnswerContent h3,
+#shortAnswerContent h4,
+#shortAnswerContent h5,
+#shortAnswerContent h6 {
+    color: #34d399;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+#shortAnswerContent h1 { font-size: 1.5rem; }
+#shortAnswerContent h2 { font-size: 1.25rem; }
+#shortAnswerContent h3 { font-size: 1.125rem; }
+#shortAnswerContent h4,
+#shortAnswerContent h5,
+#shortAnswerContent h6 { font-size: 1rem; }
+
+#shortAnswerContent p {
+    margin-bottom: 0.875rem;
+}
+
+#shortAnswerContent strong {
+    color: #34d399;
+    font-weight: 600;
+}
+
+#shortAnswerContent em {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+#shortAnswerContent code {
+    background: #334155;
+    color: #f472b6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+}
+
+#shortAnswerContent pre {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+#shortAnswerContent pre code {
+    background: transparent;
+    padding: 0;
+    color: #e2e8f0;
+}
+
+#shortAnswerContent blockquote {
+    border-left: 4px solid #34d399;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+#shortAnswerContent table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+}
+#shortAnswerContent th,
+#shortAnswerContent td {
+    border: 1px solid #475569;
+    padding: 0.625rem 0.75rem;
+    text-align: left;
+}
+#shortAnswerContent th {
+    background: #334155;
+    color: #34d399;
+    font-weight: 600;
+}
+#shortAnswerContent tr:nth-child(even) {
+    background: rgba(51, 65, 85, 0.5);
+}
+#shortAnswerContent tr:hover {
+    background: rgba(52, 211, 153, 0.1);
+}
+
+#shortAnswerContent ul,
+#shortAnswerContent ol {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+#shortAnswerContent li {
+    margin-bottom: 0.375rem;
+}
+#shortAnswerContent li::marker {
+    color: #34d399;
+}
+
+#shortAnswerContent hr {
+    border: none;
+    border-top: 1px solid #475569;
+    margin: 1.5rem 0;
+}
+
+#shortAnswerContent a {
+    color: #60a5fa;
+    text-decoration: underline;
+}
+#shortAnswerContent a:hover {
+    color: #93c5fd;
+}
+
+#shortAnswerContent img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 0.5rem 0;
+}
+
+/* ========================================
    防止過度滾動和選擇
    ======================================== */
 

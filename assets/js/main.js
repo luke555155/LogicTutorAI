@@ -43,48 +43,60 @@ function parseQuestions(markdown) {
 
     for (const block of blocks) {
         // 解析題號與題型（支援 ## *第 XXX 題 格式，星號表示重要題目）
-        const headerMatch = block.match(/##\s*(\*)?\s*第\s*(\d+)\s*題\s*【(單選題|多選題)】/);
+        // 支援：單選題、多選題、簡答題
+        const headerMatch = block.match(/##\s*(\*)?\s*第\s*(\d+)\s*題\s*【(單選題|多選題|簡答題)】/);
         if (!headerMatch) continue;
 
         const isImportant = headerMatch[1] === '*';
         const questionNum = parseInt(headerMatch[2]);
         const questionType = headerMatch[3];
         const isMultiple = questionType === '多選題';
+        const isShortAnswer = questionType === '簡答題';
 
         // 解析英文題目
         const englishMatch = block.match(/\*\*English:\*\*\s*([\s\S]*?)(?=\*\*中文：\*\*)/);
         const englishText = englishMatch ? englishMatch[1].trim() : '';
 
-        // 解析中文題目
-        const chineseMatch = block.match(/\*\*中文：\*\*\s*([\s\S]*?)(?=(?:\!\[圖片\]|\*\*選項：\*\*))/);
+        // 解析中文題目（簡答題可能後接 **圖片** 或 **參考答案**）
+        const chineseMatch = block.match(/\*\*中文：\*\*\s*([\s\S]*?)(?=(?:\!\[圖片\]|\*\*圖片\*\*|\*\*選項：\*\*|\*\*參考答案\*\*))/);
         const chineseText = chineseMatch ? chineseMatch[1].trim() : '';
 
-        // 解析圖片（支援多張）
+        // 解析圖片（支援多張，支援兩種格式：直接 ![圖片] 或 **圖片** 區塊下的 ![圖片]）
         const imageMatches = [...block.matchAll(/!\[圖片\]\((.*?)\)/g)];
         const imagePaths = imageMatches.map(m => m[1]);
 
-        // 解析選項
-        const optionsMatch = block.match(/\*\*選項：\*\*\s*([\s\S]*?)(?=\*\*正確答案)/);
-        const optionsText = optionsMatch ? optionsMatch[1].trim() : '';
-        const optionLines = optionsText.split('\n').filter(line => line.trim().startsWith('-'));
+        let options = [];
+        let correctAnswer = '';
+        let shortAnswer = null;
 
-        const options = optionLines.map(line => {
-            // 移除開頭的 "- " 並解析選項
-            const cleaned = line.replace(/^-\s*/, '').trim();
-            const letterMatch = cleaned.match(/^([A-F])\.\s*(.*)/);
-            if (letterMatch) {
-                return {
-                    letter: letterMatch[1],
-                    text: letterMatch[2]
-                };
-            }
-            return null;
-        }).filter(opt => opt !== null);
+        if (isShortAnswer) {
+            // 簡答題：解析參考答案區塊
+            const shortAnswerMatch = block.match(/\*\*參考答案\*\*\s*([\s\S]*?)(?=(?:\*\*題目解析\*\*|$))/);
+            shortAnswer = shortAnswerMatch ? shortAnswerMatch[1].trim() : null;
+        } else {
+            // 選擇題：解析選項
+            const optionsMatch = block.match(/\*\*選項：\*\*\s*([\s\S]*?)(?=\*\*正確答案)/);
+            const optionsText = optionsMatch ? optionsMatch[1].trim() : '';
+            const optionLines = optionsText.split('\n').filter(line => line.trim().startsWith('-'));
 
-        // 解析正確答案（支援連續格式 AB 或逗號分隔格式 A,B）
-        const answerMatch = block.match(/\*\*正確答案：([A-F,]+)\*\*/);
-        // 移除逗號，統一為連續字母格式（例如 A,B -> AB）
-        const correctAnswer = answerMatch ? answerMatch[1].replace(/,/g, '') : '';
+            options = optionLines.map(line => {
+                // 移除開頭的 "- " 並解析選項
+                const cleaned = line.replace(/^-\s*/, '').trim();
+                const letterMatch = cleaned.match(/^([A-F])\.\s*(.*)/);
+                if (letterMatch) {
+                    return {
+                        letter: letterMatch[1],
+                        text: letterMatch[2]
+                    };
+                }
+                return null;
+            }).filter(opt => opt !== null);
+
+            // 解析正確答案（支援連續格式 AB 或逗號分隔格式 A,B）
+            const answerMatch = block.match(/\*\*正確答案：([A-F,]+)\*\*/);
+            // 移除逗號，統一為連續字母格式（例如 A,B -> AB）
+            correctAnswer = answerMatch ? answerMatch[1].replace(/,/g, '') : '';
+        }
 
         // 解析題目解析（可選欄位）
         const explanationMatch = block.match(/\*\*題目解析\*\*\s*([\s\S]*?)(?=$)/);
@@ -94,12 +106,14 @@ function parseQuestions(markdown) {
             number: questionNum,
             type: questionType,
             isMultiple,
+            isShortAnswer,
             isImportant,
             englishText,
             chineseText,
             imagePaths,
             options,
             correctAnswer,
+            shortAnswer,
             explanation
         });
     }
@@ -267,9 +281,16 @@ function generateAnswerCard() {
  */
 function updateCardItemColor(element, questionNum) {
     const state = answerState[questionNum];
-    element.classList.remove('bg-green-500', 'bg-red-500', 'bg-slate-600', 'text-white', 'text-slate-400');
+    // 找到對應的題目檢查是否為簡答題
+    const question = questions.find(q => q.number === questionNum);
+    const isShortAnswer = question && question.isShortAnswer;
 
-    if (state === 'correct') {
+    element.classList.remove('bg-green-500', 'bg-red-500', 'bg-slate-600', 'bg-emerald-700', 'text-white', 'text-slate-400', 'text-slate-300', 'border', 'border-emerald-500');
+
+    if (isShortAnswer) {
+        // 簡答題使用特殊顏色（深綠色邊框）
+        element.classList.add('bg-slate-700', 'text-emerald-400', 'border', 'border-emerald-500');
+    } else if (state === 'correct') {
         element.classList.add('bg-green-500', 'text-white');
     } else if (state === 'wrong') {
         element.classList.add('bg-red-500', 'text-white');
@@ -335,8 +356,14 @@ function renderQuestion() {
     // 更新題型
     const typeEl = document.getElementById('questionType');
     typeEl.textContent = q.type;
-    typeEl.className = 'px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium ' +
-        (q.isMultiple ? 'bg-purple-600/20 text-purple-400' : 'bg-blue-600/20 text-blue-400');
+    // 簡答題用綠色、多選題用紫色、單選題用藍色
+    let typeClass = 'bg-blue-600/20 text-blue-400';
+    if (q.isShortAnswer) {
+        typeClass = 'bg-green-600/20 text-green-400';
+    } else if (q.isMultiple) {
+        typeClass = 'bg-purple-600/20 text-purple-400';
+    }
+    typeEl.className = 'px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium ' + typeClass;
 
     // 顯示/隱藏查看圖片按鈕（附圖片題才顯示）
     const viewImageBtn = document.getElementById('viewImageBtn');
@@ -386,15 +413,32 @@ function renderQuestion() {
     // 更新翻譯按鈕狀態
     document.getElementById('translateBtnText').textContent = showChinese ? '顯示英文原文' : '顯示中文翻譯';
 
-    // 渲染選項
+    // 渲染選項（簡答題則渲染查看答案按鈕）
     renderOptions(q);
 
-    // 顯示/隱藏多選題提交按鈕
+    // 顯示/隱藏多選題提交按鈕（簡答題不顯示）
     const submitBtnContainer = document.getElementById('submitBtnContainer');
-    if (q.isMultiple && !hasAnswered) {
+    if (q.isMultiple && !hasAnswered && !q.isShortAnswer) {
         submitBtnContainer.classList.remove('hidden');
     } else {
         submitBtnContainer.classList.add('hidden');
+    }
+
+    // 顯示/隱藏簡答題查看答案區塊
+    const shortAnswerSection = document.getElementById('shortAnswerSection');
+    if (shortAnswerSection) {
+        if (q.isShortAnswer) {
+            shortAnswerSection.classList.remove('hidden');
+            // 重設答案顯示狀態
+            const shortAnswerContent = document.getElementById('shortAnswerContent');
+            const showAnswerBtn = document.getElementById('showAnswerBtn');
+            if (shortAnswerContent && showAnswerBtn) {
+                shortAnswerContent.classList.add('hidden');
+                showAnswerBtn.classList.remove('hidden');
+            }
+        } else {
+            shortAnswerSection.classList.add('hidden');
+        }
     }
 
     // 隱藏結果訊息
@@ -419,6 +463,11 @@ function renderQuestion() {
 function renderOptions(question) {
     const container = document.getElementById('optionsContainer');
     container.innerHTML = '';
+
+    // 簡答題不渲染選項
+    if (question.isShortAnswer) {
+        return;
+    }
 
     const correctLetters = question.correctAnswer.split('');
 
@@ -571,6 +620,47 @@ function submitMultipleChoice() {
                 nextQuestion();
             }, 800);
         }
+    }
+}
+
+/**
+ * 簡答題：顯示參考答案
+ */
+function showShortAnswer() {
+    const q = questions[currentIndex];
+    if (!q || !q.isShortAnswer) return;
+
+    const showAnswerBtn = document.getElementById('showAnswerBtn');
+    const shortAnswerContent = document.getElementById('shortAnswerContent');
+
+    if (showAnswerBtn && shortAnswerContent) {
+        showAnswerBtn.classList.add('hidden');
+        shortAnswerContent.classList.remove('hidden');
+
+        // 使用 marked.js 渲染 Markdown 內容（支援表格等格式）
+        if (q.shortAnswer) {
+            if (typeof marked !== 'undefined') {
+                shortAnswerContent.innerHTML = marked.parse(q.shortAnswer);
+            } else {
+                // 如果 marked.js 未載入，直接顯示原始內容
+                shortAnswerContent.innerHTML = `<pre class="whitespace-pre-wrap">${q.shortAnswer}</pre>`;
+            }
+        } else {
+            shortAnswerContent.innerHTML = '<p class="text-slate-400">此題無參考答案</p>';
+        }
+    }
+}
+
+/**
+ * 簡答題：隱藏參考答案
+ */
+function hideShortAnswer() {
+    const showAnswerBtn = document.getElementById('showAnswerBtn');
+    const shortAnswerContent = document.getElementById('shortAnswerContent');
+
+    if (showAnswerBtn && shortAnswerContent) {
+        showAnswerBtn.classList.remove('hidden');
+        shortAnswerContent.classList.add('hidden');
     }
 }
 
@@ -822,10 +912,20 @@ function updateStats() {
     document.getElementById('wrongCount').textContent = wrong;
     document.getElementById('accuracy').textContent = accuracy + '%';
 
-    // 更新進度條
-    const progressPercent = questions.length > 0 ? (total / questions.length) * 100 : 0;
+    // 計算可作答題數（不含簡答題）
+    const answerableQuestions = questions.filter(q => !q.isShortAnswer).length;
+    const shortAnswerCount = questions.length - answerableQuestions;
+
+    // 更新進度條（簡答題不計入）
+    const progressPercent = answerableQuestions > 0 ? (total / answerableQuestions) * 100 : 0;
     document.getElementById('progressBar').style.width = progressPercent + '%';
-    document.getElementById('progressText').textContent = `已作答 ${total} / ${questions.length} 題`;
+
+    // 進度文字顯示（如有簡答題則標註）
+    let progressText = `已作答 ${total} / ${answerableQuestions} 題`;
+    if (shortAnswerCount > 0) {
+        progressText += ` (另有 ${shortAnswerCount} 題簡答)`;
+    }
+    document.getElementById('progressText').textContent = progressText;
 }
 
 // ==================== 進度儲存 ====================
@@ -1678,16 +1778,25 @@ async function analyzeWithAI() {
     // 滾動到 AI 解析區塊
     section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-    // 組合題目內容
-    const optionsText = q.options.map(opt => `${opt.letter}. ${opt.text}`).join('\n');
-    const userPrompt = `題目類型：${q.type}
+    // 組合題目內容（根據題型調整格式）
+    let userPrompt = `題目類型：${q.type}
 
 題目：
 ${q.englishText}
 
-${q.chineseText ? `中文翻譯：\n${q.chineseText}\n` : ''}
-選項：
-${optionsText}`;
+${q.chineseText ? `中文翻譯：\n${q.chineseText}\n` : ''}`;
+
+    if (q.isShortAnswer) {
+        // 簡答題格式
+        userPrompt += `\n這是一道簡答題，請協助分析題目並提供詳細的解答思路。`;
+        if (q.shortAnswer) {
+            userPrompt += `\n\n參考答案：\n${q.shortAnswer}`;
+        }
+    } else {
+        // 選擇題格式
+        const optionsText = q.options.map(opt => `${opt.letter}. ${opt.text}`).join('\n');
+        userPrompt += `選項：\n${optionsText}`;
+    }
 
     try {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {

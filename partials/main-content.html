@@ -136,6 +136,36 @@
                         </button>
                     </div>
 
+                    <!-- 簡答題查看答案區塊 -->
+                    <div id="shortAnswerSection" class="hidden mt-6">
+                        <div class="border border-green-500/30 rounded-xl overflow-hidden">
+                            <!-- 區塊標題 -->
+                            <div class="bg-gradient-to-r from-green-600/20 to-emerald-500/20 px-5 py-3 border-b border-green-500/30 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <h4 class="font-semibold text-white">參考答案</h4>
+                            </div>
+                            <!-- 查看答案按鈕 -->
+                            <div id="showAnswerBtn" class="p-6 bg-slate-900/50 text-center">
+                                <p class="text-slate-400 mb-4">此題為簡答題，請先自行思考後再查看答案</p>
+                                <button onclick="showShortAnswer()" class="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 px-8 py-3 rounded-xl font-semibold text-white transition shadow-lg shadow-green-500/25">
+                                    查看參考答案
+                                </button>
+                            </div>
+                            <!-- 答案內容 -->
+                            <div id="shortAnswerContent" class="hidden p-6 bg-slate-900/50">
+                                <!-- 動態載入答案內容 -->
+                            </div>
+                            <!-- 隱藏答案按鈕 -->
+                            <div class="px-5 py-2 bg-slate-800/50 border-t border-green-500/20 text-center">
+                                <button onclick="hideShortAnswer()" class="text-xs text-slate-400 hover:text-white transition">
+                                    收起答案
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 答題結果提示 -->
                     <div id="resultMessage" class="hidden mt-6 p-4 rounded-xl">
                         <!-- 動態顯示結果 -->
@@ -243,7 +273,7 @@
                     <!-- 動態生成題號格子 -->
                 </div>
                 <!-- 圖例 -->
-                <div class="mt-3 lg:mt-4 flex items-center justify-center gap-3 lg:gap-4 text-xs text-slate-400">
+                <div class="mt-3 lg:mt-4 flex flex-wrap items-center justify-center gap-3 lg:gap-4 text-xs text-slate-400">
                     <div class="flex items-center gap-1">
                         <div class="w-3 h-3 bg-green-500 rounded"></div>
                         <span>正確</span>
@@ -255,6 +285,10 @@
                     <div class="flex items-center gap-1">
                         <div class="w-3 h-3 bg-slate-600 rounded"></div>
                         <span>未作答</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <div class="w-3 h-3 bg-slate-700 border border-emerald-500 rounded"></div>
+                        <span>簡答</span>
                     </div>
                 </div>
             </div>
