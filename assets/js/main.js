@@ -1554,14 +1554,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ESC 鍵關閉手機選單
+    // ESC 鍵快捷功能
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            closeMobileMenu();
-            // 關閉統計面板
+            // 優先關閉已開啟的面板
+            const mobileMenuPanel = document.getElementById('mobileMenuPanel');
             const statsPanel = document.getElementById('statsPanel');
+
+            // 如果手機選單打開，關閉它
+            if (mobileMenuPanel?.classList.contains('open')) {
+                closeMobileMenu();
+                return;
+            }
+
+            // 如果統計面板打開，關閉它
             if (statsPanel?.classList.contains('open')) {
                 toggleStatsPanel();
+                return;
+            }
+
+            // 如果解析面板打開，由 closeExplanationPanelOnEsc 處理
+            if (isExplanationPanelOpen) {
+                return;
+            }
+
+            // 沒有面板打開時，聚焦到跳題輸入框並清空
+            const jumpInput = document.getElementById('jumpInput');
+            if (jumpInput && questions.length > 0) {
+                jumpInput.value = '';
+                jumpInput.focus();
+                jumpInput.select();
             }
         }
     });
