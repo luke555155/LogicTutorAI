@@ -451,3 +451,61 @@
     width: 24px;
     height: 24px;
 }
+
+/* ========================================
+   計時器 RWD 樣式
+   ======================================== */
+
+/* 手機版計時器調整 */
+@media (max-width: 640px) {
+    #timerBar {
+        padding: 0.5rem 0.75rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    #timerBar .flex {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    #timerBar .flex.items-baseline {
+        flex-direction: row;
+        gap: 0.25rem;
+    }
+
+    #timerMinutes,
+    #timerSeconds {
+        font-size: 1rem !important;
+    }
+
+    #timerBar svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    /* 進度條在手機版更細 */
+    #timerBar .mt-2 {
+        margin-top: 0.375rem !important;
+    }
+
+    #timerBar .h-1 {
+        height: 0.25rem;
+    }
+}
+
+/* 平板版計時器 */
+@media (min-width: 641px) and (max-width: 1024px) {
+    #timerBar {
+        padding: 0.75rem 1.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+}
+
+/* 計時器在各螢幕尺寸下的觸碰目標最小高度 */
+@media (max-width: 768px) {
+    #timerBar {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+}

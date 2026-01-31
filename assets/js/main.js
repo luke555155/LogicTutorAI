@@ -33,6 +33,13 @@ let groqApiKey = '';          // GROQ API Key
 let groqModel = 'openai/gpt-oss-20b';  // 預設模型
 let availableModels = [];     // 可用模型列表
 
+// ==================== 倒數計時器設定 ====================
+let timerEnabled = true;       // 是否啟用計時器（預設啟用）
+let timerDuration = 60;        // 計時器時間（秒，預設 60 秒）
+let timeRemaining = 0;         // 剩餘時間
+let timerInterval = null;      // 計時器 interval 參考
+let timerStartTime = 0;        // 計時器開始時間
+
 // ==================== 題庫解析器 ====================
 /**
  * 解析 Markdown 題庫檔案
@@ -454,6 +461,13 @@ function renderQuestion() {
     // 更新跳題輸入框
     document.getElementById('jumpInput').value = q.number;
 
+    // 啟動計時器（如果未作答）
+    if (!hasAnswered && timerEnabled) {
+        startTimer(timerDuration);
+    } else {
+        stopTimer();
+    }
+
     // 如果已作答，顯示結果
     if (hasAnswered) {
         showAnswerResult(q, answerState[q.number] === 'correct');
@@ -566,6 +580,9 @@ function selectSingleOption(letter, question) {
     hasAnswered = true;
     answerState[question.number] = isCorrect ? 'correct' : 'wrong';
 
+    // 停止計時器
+    stopTimer();
+
     saveProgress();
     updateSingleCardItem(question.number);
     updateStats();
@@ -602,6 +619,9 @@ function submitMultipleChoice() {
     hasAnswered = true;
     answerState[q.number] = isCorrect ? 'correct' : 'wrong';
 
+    // 停止計時器
+    stopTimer();
+
     saveProgress();
     updateSingleCardItem(q.number);
     updateStats();
@@ -632,6 +652,9 @@ function submitMultipleChoice() {
 function showShortAnswer() {
     const q = questions[currentIndex];
     if (!q || !q.isShortAnswer) return;
+
+    // 停止計時器（用戶查看答案時）
+    stopTimer();
 
     const showAnswerBtn = document.getElementById('showAnswerBtn');
     const shortAnswerContent = document.getElementById('shortAnswerContent');
@@ -971,11 +994,129 @@ function resetProgress() {
     if (confirm('確定要重設所有答題進度嗎？')) {
         answerState = {};
         currentIndex = 0;
+        stopTimer();
         localStorage.removeItem('sy0701_answerState');
         localStorage.removeItem('sy0701_currentIndex');
         generateAnswerCard();
         renderQuestion();
         updateStats();
+    }
+}
+
+// ==================== 倒數計時器功能 ====================
+/**
+ * 啟動倒數計時器
+ * @param {number} seconds - 計時時間（秒）
+ */
+function startTimer(seconds = 60) {
+    if (!timerEnabled) return;
+
+    // 停止現有計時器
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+
+    timeRemaining = seconds;
+    timerStartTime = seconds;
+    updateTimerDisplay();
+
+    const timerBar = document.getElementById('timerBar');
+    if (timerBar) {
+        timerBar.classList.remove('hidden');
+    }
+
+    // 每秒更新一次
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+
+        // 時間到期
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            handleTimerExpired();
+        }
+    }, 1000);
+}
+
+/**
+ * 更新計時器顯示
+ */
+function updateTimerDisplay() {
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+
+    // 更新時間顯示
+    const minutesEl = document.getElementById('timerMinutes');
+    const secondsEl = document.getElementById('timerSeconds');
+    const progressEl = document.getElementById('timerProgress');
+    const timerBar = document.getElementById('timerBar');
+
+    if (minutesEl) {
+        minutesEl.textContent = String(minutes).padStart(2, '0');
+    }
+    if (secondsEl) {
+        secondsEl.textContent = String(seconds).padStart(2, '0');
+    }
+
+    // 更新進度條
+    if (progressEl && timerStartTime > 0) {
+        const progressPercent = (timeRemaining / timerStartTime) * 100;
+        progressEl.style.width = progressPercent + '%';
+    }
+
+    // 當時間少於 10 秒時，變更顏色為紅色並加速脈衝
+    if (timerBar) {
+        if (timeRemaining <= 10) {
+            timerBar.classList.add('timer-warning');
+        } else {
+            timerBar.classList.remove('timer-warning');
+        }
+    }
+}
+
+/**
+ * 停止計時器
+ */
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    const timerBar = document.getElementById('timerBar');
+    if (timerBar) {
+        timerBar.classList.add('hidden');
+    }
+}
+
+/**
+ * 處理計時器到期（震動效果）
+ */
+function handleTimerExpired() {
+    const questionCard = document.querySelector('.bg-slate-800/50.backdrop-blur.rounded-2xl');
+
+    if (questionCard) {
+        // 添加震動 CSS 動畫類別
+        questionCard.classList.add('timer-shake');
+
+        // 觸發振動 API（行動裝置）
+        if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100, 50, 100]); // 震動模式
+        }
+
+        // 3 秒後移除動畫類別
+        setTimeout(() => {
+            questionCard.classList.remove('timer-shake');
+        }, 3000);
+    }
+
+    // 顯示超時提示（可選）
+    const resultMessage = document.getElementById('resultMessage');
+    if (resultMessage && !hasAnswered) {
+        resultMessage.className = 'block mt-6 p-4 rounded-xl bg-red-500/10 text-red-400 border border-red-500/50';
+        resultMessage.innerHTML = '<strong>⏰ 時間已到！</strong><br>未在規定時間內作答';
+        resultMessage.classList.remove('hidden');
     }
 }
 
