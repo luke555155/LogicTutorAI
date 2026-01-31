@@ -740,6 +740,40 @@
                                 </div>
                             </label>
                         </div>
+
+                        <div class="h-px bg-slate-700"></div>
+
+                        <!-- 題型過濾設定 -->
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                </svg>
+                                <span class="text-sm font-medium text-slate-300">題型過濾</span>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-3 cursor-pointer group touch-target">
+                                    <input type="checkbox" id="singleChoiceCheckbox" class="checkbox-custom" onchange="toggleQuestionType('單選題')" checked>
+                                    <span class="text-sm text-slate-400 group-hover:text-white transition">單選題</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer group touch-target">
+                                    <input type="checkbox" id="multipleChoiceCheckbox" class="checkbox-custom" onchange="toggleQuestionType('多選題')" checked>
+                                    <span class="text-sm text-slate-400 group-hover:text-white transition">多選題</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer group touch-target">
+                                    <input type="checkbox" id="shortAnswerCheckbox" class="checkbox-custom" onchange="toggleQuestionType('簡答題')" checked>
+                                    <span class="text-sm text-slate-400 group-hover:text-white transition">簡答題</span>
+                                </label>
+                            </div>
+                            <div id="typeFilterInfo" class="mt-2 bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+                                <p class="text-xs text-slate-400 flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-green-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span id="typeFilterInfoText">已選題型：單選題、多選題、簡答題（-- 題）</span>
+                                </p>
+                            </div>
+                        </div>
                     </div>
                     <!-- Dialog 底部 -->
                     <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-700 bg-slate-800/50 sm:rounded-b-2xl flex justify-end gap-3 sticky bottom-0 safe-area-bottom">

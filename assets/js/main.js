@@ -25,6 +25,9 @@ let rangeStart = 1;           // 起始題號
 let rangeEnd = null;          // 結束題號（null 表示到最後一題）
 let showImportantOnly = false; // 是否僅顯示重要題目
 
+// 題型過濾設定
+let enabledQuestionTypes = ['單選題', '多選題', '簡答題'];
+
 // GROQ AI 設定
 let groqApiKey = '';          // GROQ API Key
 let groqModel = 'openai/gpt-oss-20b';  // 預設模型
@@ -744,7 +747,7 @@ function isInValidRange(index) {
 }
 
 /**
- * 取得有效的題目索引列表（考慮閱讀範圍和僅顯示重要題目設定）
+ * 取得有效的題目索引列表（考慮閱讀範圍、僅顯示重要題目和題型過濾設定）
  */
 function getValidIndices() {
     if (questions.length === 0) return [];
@@ -754,8 +757,12 @@ function getValidIndices() {
 
     for (let i = range.startIdx; i <= range.endIdx; i++) {
         const q = questions[i];
-        // 如果啟用僅顯示重要題目，則只加入重要題目
+        // 過濾1：僅顯示重要題目
         if (showImportantOnly && !q.isImportant) {
+            continue;
+        }
+        // 過濾2：題型過濾
+        if (!enabledQuestionTypes.includes(q.type)) {
             continue;
         }
         indices.push(i);
@@ -869,6 +876,13 @@ function jumpToQuestion() {
         // 檢查是否為重要題目（如果啟用僅顯示重要題目）
         if (showImportantOnly && !q.isImportant) {
             alert(`題目 ${num} 不是重要題目，目前僅顯示重要題目`);
+            return;
+        }
+
+        // 檢查題型是否啟用
+        if (!enabledQuestionTypes.includes(q.type)) {
+            const typeNames = enabledQuestionTypes.join('、');
+            alert(`題目 ${num} 是「${q.type}」，目前僅顯示：${typeNames}`);
             return;
         }
 
@@ -1387,6 +1401,10 @@ function openAdvancedSettingsDialog() {
     if (randomJumpEnabled) {
         document.getElementById('randomJumpInfo').classList.remove('hidden');
     }
+
+    // 初始化題型過濾設定
+    updateQuestionTypeCheckboxes();
+    updateTypeFilterInfo();
 }
 
 function closeAdvancedSettingsDialog() {
@@ -1439,6 +1457,66 @@ function toggleKeywordHighlight() {
     if (questions.length > 0) {
         renderQuestion();
     }
+}
+
+function toggleQuestionType(type) {
+    const index = enabledQuestionTypes.indexOf(type);
+
+    // 邊界檢查：至少保留一個題型
+    if (index !== -1 && enabledQuestionTypes.length === 1) {
+        alert('至少需要選擇一種題型');
+        updateQuestionTypeCheckboxes();
+        return;
+    }
+
+    // 切換題型啟用狀態
+    if (index !== -1) {
+        enabledQuestionTypes.splice(index, 1);
+    } else {
+        enabledQuestionTypes.push(type);
+    }
+
+    // 保存到 localStorage
+    localStorage.setItem('enabled_question_types', JSON.stringify(enabledQuestionTypes));
+
+    // 更新信息顯示
+    updateTypeFilterInfo();
+    updateQuestionTypeCheckboxes();
+
+    // 如果當前題目被過濾，跳轉到第一個有效題目
+    if (questions.length > 0) {
+        const validIndices = getValidIndices();
+        if (validIndices.length === 0 || !validIndices.includes(currentIndex)) {
+            if (validIndices.length > 0) {
+                currentIndex = validIndices[0];
+                renderQuestion();
+            }
+        }
+    }
+}
+
+function updateTypeFilterInfo() {
+    const typeFilterInfoText = document.getElementById('typeFilterInfoText');
+    if (!typeFilterInfoText) return;
+
+    const validIndices = getValidIndices();
+    const typeNames = enabledQuestionTypes.join('、');
+
+    if (validIndices.length === 0) {
+        typeFilterInfoText.textContent = `已選題型：${typeNames}（無符合的題目）`;
+    } else {
+        typeFilterInfoText.textContent = `已選題型：${typeNames}（${validIndices.length} 題）`;
+    }
+}
+
+function updateQuestionTypeCheckboxes() {
+    const singleChoiceCheckbox = document.getElementById('singleChoiceCheckbox');
+    const multipleChoiceCheckbox = document.getElementById('multipleChoiceCheckbox');
+    const shortAnswerCheckbox = document.getElementById('shortAnswerCheckbox');
+
+    if (singleChoiceCheckbox) singleChoiceCheckbox.checked = enabledQuestionTypes.includes('單選題');
+    if (multipleChoiceCheckbox) multipleChoiceCheckbox.checked = enabledQuestionTypes.includes('多選題');
+    if (shortAnswerCheckbox) shortAnswerCheckbox.checked = enabledQuestionTypes.includes('簡答題');
 }
 
 function toggleShowImportantOnly() {
@@ -1639,6 +1717,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // 載入僅顯示重要題目設定
     const savedShowImportantOnly = localStorage.getItem('show_important_only');
     showImportantOnly = savedShowImportantOnly === 'true';
+
+    // 載入題型過濾設定
+    const savedQuestionTypes = localStorage.getItem('enabled_question_types');
+    if (savedQuestionTypes) {
+        try {
+            enabledQuestionTypes = JSON.parse(savedQuestionTypes);
+            if (!Array.isArray(enabledQuestionTypes) || enabledQuestionTypes.length === 0) {
+                enabledQuestionTypes = ['單選題', '多選題', '簡答題'];
+            }
+        } catch (e) {
+            enabledQuestionTypes = ['單選題', '多選題', '簡答題'];
+        }
+    }
 
     // 初始化懸浮解析視窗拖曳功能
     initExplanationPanelDrag();
