@@ -508,4 +508,9 @@
         display: flex;
         align-items: center;
     }
+
+    /* 確保 hidden 類在手機版本上也能正確隱藏計時器 */
+    #timerBar.hidden {
+        display: none !important;
+    }
 }
